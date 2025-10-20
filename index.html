@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MEMORY ARCHIVE // 20 — One Page</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <audio id="ambience" src="" loop autoplay muted></audio>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <strong>MEMORY ARCHIVE // 2079</strong>
+      <div class="progress" aria-hidden="true">
+        <span id="progressBar"></span>
+      </div>
+      <div style="display: flex; gap: 0.6rem; align-items: center">
+        <button class="btn" id="themeBtn" type="button">Palette: BR2049</button>
+        <button
+          class="btn"
+          id="bootTestBtn"
+          type="button"
+          title="Tester l'intro"
+        >
+          Boot (test)
+        </button>
+        <a class="btn" href="#hub" onclick="show('hub');return false">Hub</a>
+      </div>
+    </header>
+
+    <!-- GLITCH FX -->
+    <div id="glitchFx" aria-hidden="true"></div>
+
+    <!-- HOME (hero vidéo plein écran) -->
+    <section id="home" class="section active">
+      <div class="home-hero">
+        <!-- Vidéo de fond -->
+        <video
+          id="homeVid"
+          class="home-bg"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="auto"
+          poster="assets/img/home_poster.jpg"
+        >
+          <!-- remplace par tes fichiers -->
+          <source src="home_bg.mp4" type="video/mp4" />
+        </video>
+
+        <!-- Overlays pour lisibilité -->
+        <div class="home-gradient" aria-hidden="true"></div>
+        <div class="home-noise" aria-hidden="true"></div>
+
+        <!-- Contenu -->
+        <div class="home-inner">
+          <div
+            class="card home-card holo lightsweep"
+            id="homeCard"
+            aria-live="polite"
+          >
+            <!-- contour décoratif -->
+            <span class="edge tl"></span>
+            <span class="edge tr"></span>
+            <span class="edge bl"></span>
+            <span class="edge br"></span>
+
+            <!-- lueur de glare -->
+            <span class="glare" aria-hidden="true"></span>
+
+            <!-- contenu -->
+            <h1 class="h1 gtext glow-cyan neon-flicker">
+              <span class="magnet">&gt; ACCESSING…</span>
+            </h1>
+            <p class="p">
+              Fragments retrouvés dans les serveurs de Los Angeles. Statut :
+              <em>corrompu</em> / <em>partiellement récupérable</em>.
+            </p>
+
+            <div class="home-actions">
+              <a class="btn" href="#boot" onclick="startBoot(); return false;"
+                >Entrer dans l’archive</a
+              >
+              <button class="btn" id="homeSound">Son : OFF</button>
+            </div>
+
+            <!-- micro-HUD -->
+            <div class="hud">
+              <span class="dot"></span> LAX_NODE_2049
+              <span class="sep">/</span> MEM: 62%
+              <span class="sep">/</span> SIGNAL: −72dB
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOOT -->
+    <section id="boot" class="section" aria-hidden="false">
+      <div class="boot-wrap">
+        <div class="boot-hud" aria-hidden="true">
+          <div class="grid v"></div>
+          <div class="grid h"></div>
+          <div class="scanlines"></div>
+          <div class="noise"></div>
+
+          <div class="widget top-left">
+            <div class="label">MEMORY CLUSTERS</div>
+            <div class="bars" id="bootBars"></div>
+          </div>
+
+          <div class="widget top-right">
+            <div class="label">ENERGY REACTOR</div>
+            <div class="gauge"><span id="bootGauge"></span></div>
+            <div class="percent"><span id="bootPct">0</span>%</div>
+          </div>
+
+          <div class="widget bottom-left">
+            <div class="label">ENGINE LIST</div>
+            <ul id="bootList" class="engine"></ul>
+          </div>
+
+          <div class="widget bottom-right">
+            <div class="label">STATUS</div>
+            <div class="log" id="bootLog"></div>
+          </div>
+        </div>
+
+        <div class="terminal" id="bootTerminal" aria-live="polite"></div>
+
+        <div class="progressline">
+          <div class="plabel">DECRYPTION</div>
+          <div class="pbar"><span id="bootProgress"></span></div>
+        </div>
+
+        <div class="press" id="bootPress" hidden>
+          Press any key to continue ▍
+        </div>
+      </div>
+    </section>
+
+    <!-- HUB — TERMINAL CRT FULLSCREEN -->
+    <section id="hub" class="section">
+      <div class="crt-wrap" role="application" aria-label="Terminal fragments">
+        <!-- Effets CRT -->
+        <div class="crt-mask" aria-hidden="true"></div>
+        <div class="crt-scan" aria-hidden="true"></div>
+        <div class="crt-vignette" aria-hidden="true"></div>
+
+        <!-- Barre d’info -->
+        <header class="crt-bar">
+          <span class="brand">TERMLINK v5.2</span>
+          <span class="sep">•</span> NODE: LAX_2049
+          <span class="sep">•</span> ACCESS: GUEST
+          <span class="sep">•</span> ATTEMPTS: <span class="px">▮ ▮</span>
+          <span class="right">↑/↓ navigate — Enter ouvrir — H hub</span>
+        </header>
+
+        <!-- Zone texte -->
+        <div id="crtViewport" class="crt-viewport" tabindex="0">
+          <pre id="crtOutput" class="crt-output" aria-live="polite"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- FRAGMENT 1 — Scrollytelling horizontal multi-layers -->
+    <section id="fragment-1" class="section">
+      <main
+        class="hsec fade"
+        id="hscroll-frag1"
+        aria-label="Panorama Los Angeles"
+      >
+        <div class="hpin">
+          <div class="hlayers" id="hlayers-frag1">
+            <!-- BACK: motion (fallback to image if missing) -->
+            <div class="layer" data-depthx="0.35">
+              <!-- replace with your motion or large panorama -->
+              <img class="motion-bg" src="cyber" alt="Panorama large (BG)" />
+            </div>
+            <!-- MID -->
+            <div class="layer" data-depthx="0.65">
+              <img src="reherherh.jpg" alt="Bâtiments et enseignes (mi-plan)" />
+            </div>
+            <!-- FORE -->
+            <div class="layer" data-depthx="0.95">
+              <img src="reherherh.jpg" alt="Avant-plan câbles et passerelles" />
+            </div>
+
+            <!-- FX pluie overlay -->
+
+            <figcaption class="hnt hnt-1">
+              Los Angeles s'ét
+            </figcaption>
+            <figcaption class="hnt hnt-2">
+              Les néons clignotent comme des souvenirs mal sauvegardés.
+            </figcaption>
+            <figcaption class="hnt hnt-3">
+              Dans les reflets, on croit encore voir passer des visages.
+            </figcaption>
+          </div>
+
+          <div class="hoverlay">
+            <h2 class="gtext">
+              <span class="magnet">Fragment 01 — Los Angeles 2049</span>
+            </h2>
+            <p>Défile pour traverser la ville →</p>
+          </div>
+        </div>
+      </main>
+    </section>
+
+    <!-- FRAGMENT 2 -->
+    <section id="fragment-2" class="section">
+      <main class="stage fade" data-parallax>
+        <img
+          class="bg"
+          src="assets/img/replicants.webp"
+          alt="Fragments d'êtres"
+        />
+        <div class="overlay" data-depth="0.10">
+          <h2 class="gtext"><span class="magnet">Fragments d’êtres.</span></h2>
+          <p>
+            Noms effacés, souvenirs réécrits. Certains se rappellent avoir aimé,
+            d’autres ne se rappellent plus pourquoi.
+          </p>
+        </div>
+        <div class="frag-nav">
+          <a class="mini" onclick="show('hub')">Hub</a>
+          <a class="mini" onclick="openFrag('fragment-1')">01</a>
+          <a class="mini" onclick="openFrag('fragment-3')">03</a>
+          <a class="mini" onclick="openFrag('fragment-4')">04</a>
+        </div>
+      </main>
+    </section>
+
+    <!-- FRAGMENT 3 -->
+    <section id="fragment-3" class="section">
+      <main class="stage fade" data-parallax>
+        <img class="bg" src="assets/img/factory.webp" alt="Usine à souvenirs" />
+        <video
+          class="fx"
+          autoplay
+          muted
+          loop
+          playsinline
+          data-depth="0.06"
+          style="display: none"
+        >
+          <source src="assets/motion/steam.webm" type="video/webm" />
+        </video>
+        <div class="overlay" data-depth="0.12">
+          <h2 class="gtext"><span class="magnet">Usine à souvenirs.</span></h2>
+          <p>
+            Sous la ville, des ateliers recyclent la mémoire comme du cuivre. À
+            force, certaines images collent aux mains.
+          </p>
+        </div>
+        <div class="frag-nav">
+          <a class="mini" onclick="show('hub')">Hub</a>
+          <a class="mini" onclick="openFrag('fragment-1')">01</a>
+          <a class="mini" onclick="openFrag('fragment-2')">02</a>
+          <a class="mini" onclick="openFrag('fragment-4')">04</a>
+        </div>
+      </main>
+    </section>
+
+    <!-- FRAGMENT 4 -->
+    <section id="fragment-4" class="section">
+      <main class="stage fade" data-parallax>
+        <img class="bg" src="assets/img/horizon.webp" alt="La lisière" />
+        <video
+          class="fx"
+          autoplay
+          muted
+          loop
+          playsinline
+          data-depth="0.04"
+          style="display: none"
+        >
+          <source src="assets/motion/dust.webm" type="video/webm" />
+        </video>
+        <div class="overlay" data-depth="0.10">
+          <h2 class="gtext"><span class="magnet">La lisière.</span></h2>
+          <p>
+            Au-delà des murs, la lumière respire encore. Les serveurs
+            s’éteignent, mais quelque chose reste.
+          </p>
+        </div>
+        <div class="frag-nav">
+          <a class="mini" onclick="show('hub')">Hub</a>
+          <a class="mini" onclick="openFrag('fragment-1')">01</a>
+          <a class="mini" onclick="openFrag('fragment-2')">02</a>
+          <a class="mini" onclick="openFrag('fragment-3')">03</a>
+        </div>
+      </main>
+    </section>
+
+    <!-- FINALE -->
+    <section id="finale" class="section">
+      <main class="stage fade">
+        <div
+          id="folder"
+          class="center"
+          style="
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+          "
+        >
+          <div
+            style="
+              display: inline-block;
+              padding: 1rem 1.4rem;
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              border-radius: 12px;
+              background: rgba(255, 255, 255, 0.04);
+              text-align: center;
+            "
+          >
+            <div
+              style="
+                font-size: 1.2rem;
+                color: var(--accent);
+                margin-bottom: 0.4rem;
+              "
+            >
+              NEXUS_10
+            </div>
+            <small class="p">/ARCHIVES/SECURE/PROJECTS/NEXUS_10/</small><br />
+            <button class="btn" id="open">Ouvrir le dossier</button>
+          </div>
+        </div>
+        <div
+          id="black"
+          style="
+            position: absolute;
+            inset: 0;
+            background: #000;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+          "
+        ></div>
+        <div
+          id="br3"
+          style="
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            color: var(--fg);
+            font-size: clamp(28px, 6vw, 64px);
+            letter-spacing: 0.1em;
+            opacity: 0;
+            transition: opacity 1s ease;
+          "
+        >
+          BLADE RUNNER 3
+        </div>
+      </main>
+    </section>
+
+    <script src="script.js"></script>
+  </body>
+</html>
