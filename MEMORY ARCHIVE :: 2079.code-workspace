@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../Downloads/Projet Memory reboot"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "Projet Memory reboot"
+	}
+}

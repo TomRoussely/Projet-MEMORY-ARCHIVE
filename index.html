@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MEMORY ARCHIVE // 20 — One Page</title>
+    <title>MEMORY ARCHIVE // 20</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -32,8 +32,38 @@
     <!-- GLITCH FX -->
     <div id="glitchFx" aria-hidden="true"></div>
 
+    <!-- … toutes tes sections existantes … -->
+
+    <!-- INTRO : doit être la dernière section dans le body -->
+    <section id="intro" class="section active">
+      <div class="intro-wrap">
+        <div class="intro-scan"></div>
+        <div class="intro-vignette"></div>
+
+        <div class="intro-bar">
+          <span class="brand">/LAX_NODE/CONTEXT</span>
+          <span class="sep">—</span>
+          <span>ARCHIVE: BR_UNIVERSE/QUICK_BRIEF</span>
+          <span class="right">BUILD: NX10-β</span>
+        </div>
+
+        <main class="intro-term" id="introTerm"></main>
+
+        <div class="intro-help" id="introHelp" hidden>
+          <button id="introContinue" class="btn intro-btn">Continuer ▸</button>
+          <span class="hint">ou appuie sur n’importe quelle touche</span>
+        </div>
+      </div>
+
+      <!-- Effet transition (glitch + flash) -->
+      <div id="introTransition" aria-hidden="true">
+        <div class="glitch-pass"></div>
+        <div class="white-flash"></div>
+      </div>
+    </section>
+
     <!-- HOME (hero vidéo plein écran) -->
-    <section id="home" class="section active">
+    <section id="home" class="section">
       <div class="home-hero">
         <!-- Vidéo de fond -->
         <video
@@ -47,7 +77,7 @@
           poster="assets/img/home_poster.jpg"
         >
           <!-- remplace par tes fichiers -->
-          <source src="home_bg.mp4" type="video/mp4" />
+          <source src="everything finished.mp4" type="video/mp4" />
         </video>
 
         <!-- Overlays pour lisibilité -->
@@ -141,26 +171,57 @@
       </div>
     </section>
 
-    <!-- HUB — TERMINAL CRT FULLSCREEN -->
+    <!-- HUB (Terminal CRT plein écran) -->
     <section id="hub" class="section">
-      <div class="crt-wrap" role="application" aria-label="Terminal fragments">
-        <!-- Effets CRT -->
-        <div class="crt-mask" aria-hidden="true"></div>
-        <div class="crt-scan" aria-hidden="true"></div>
-        <div class="crt-vignette" aria-hidden="true"></div>
+      <div class="crt-wrap" id="hubCRT" aria-live="polite">
+        <!-- barre supérieure type terminal -->
+        <div class="crt-bar">
+          <span class="brand">/ARCHIVES/NEXUS_10</span>
+          <span class="sep">•</span>
+          <span class="px">USER: GUEST</span>
+          <span class="sep">•</span>
+          <span class="px">PERMS: READONLY</span>
+          <div class="right">
+            MEM: <span id="hubMem">62%</span> • SIGNAL: −72dB
+          </div>
+          <button class="crt-sound-btn" id="crtSound">Sound: OFF</button>
+        </div>
 
-        <!-- Barre d’info -->
-        <header class="crt-bar">
-          <span class="brand">TERMLINK v5.2</span>
-          <span class="sep">•</span> NODE: LAX_2049
-          <span class="sep">•</span> ACCESS: GUEST
-          <span class="sep">•</span> ATTEMPTS: <span class="px">▮ ▮</span>
-          <span class="right">↑/↓ navigate — Enter ouvrir — H hub</span>
-        </header>
+        <!-- viewport texte -->
+        <div class="crt-viewport" id="hubViewport" tabindex="0">
+          <pre class="crt-output" id="hubOut"></pre>
+          <div class="crt-scan" aria-hidden="true"></div>
+          <div class="crt-vignette" aria-hidden="true"></div>
+          <div class="crt-mask" aria-hidden="true"></div>
+        </div>
 
-        <!-- Zone texte -->
-        <div id="crtViewport" class="crt-viewport" tabindex="0">
-          <pre id="crtOutput" class="crt-output" aria-live="polite"></pre>
+        <!-- aide sticky -->
+        <div class="crt-help">
+          ↑/↓ pour naviguer • Entrée pour ouvrir • [R] reset mémoire • [ESC]
+          retour Home
+        </div>
+
+        <!-- alert minimale -->
+        <div id="hubAlert" class="crt-alert" role="alert" hidden>
+          <div class="crt-alert-box">
+            <div class="crt-alert-title">ACCESS DENIED</div>
+            <div class="crt-alert-body" id="hubAlertMsg">
+              Autorisation manquante.
+            </div>
+            <button class="btn" id="hubAlertClose">OK</button>
+          </div>
+        </div>
+
+        <!-- overlay crash -->
+        <div id="hubCrash" class="crt-crash" aria-hidden="true" hidden>
+          <div class="crt-crash-veil"></div>
+          <div class="crt-crash-matrix" id="crashMatrix"></div>
+          <div class="crt-crash-center">
+            <div class="crt-crash-title">FATAL EXCEPTION</div>
+            <div class="crt-crash-code">ERR 0xA9 • CORE DUMP</div>
+            <div class="crt-crash-msg">MEMORY FRAGMENTS CORRUPTED</div>
+            <div class="crt-crash-sub">Rebooting safe session…</div>
+          </div>
         </div>
       </div>
     </section>
@@ -190,9 +251,7 @@
 
             <!-- FX pluie overlay -->
 
-            <figcaption class="hnt hnt-1">
-              Los Angeles s'ét
-            </figcaption>
+            <figcaption class="hnt hnt-1">Los Angeles s'ét</figcaption>
             <figcaption class="hnt hnt-2">
               Les néons clignotent comme des souvenirs mal sauvegardés.
             </figcaption>

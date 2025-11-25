@@ -489,15 +489,112 @@ function reInitMagnet() {
 /* =========================
    Boot & UI init
    ========================= */
-(function bootInit() {
-  const id = (location.hash || "").replace("#", "") || "home";
-  show(id);
-  updateUI();
-})();
-window.addEventListener("resize", () => {
-  /* ensure scroll handlers can remount if needed */ handleHScrollFor(
-    location.hash.replace("#", "") || "home"
-  );
+/* ===== INTRO: plein écran + transition propre vers HOME ===== */
+const INTRO_LINES = [
+  { t: "[SYSTEM] Initializing context brief…", cls: "sys" },
+  {
+    t: "Los Angeles, 2049. Les mégastructures étouffent le ciel. La pluie dissout les néons.",
+    cls: "",
+  },
+  {
+    t: "La frontière entre humains et <replicants> s’estompe. Mémoire = marchandise.",
+    cls: "",
+  },
+  {
+    t: "Vous êtes lié au projet <NEXUS_10>. Les fragments trouvés sont cryptés.",
+    cls: "",
+  },
+  {
+    t: "Votre objectif : <span class='hl'>réassembler la mémoire</span> en parcourant l’archive.",
+    cls: "",
+  },
+  {
+    t: "Rappel : certains souvenirs mentent mieux que la vérité.",
+    cls: "warn",
+  },
+  { t: "Chargement du shell d’accès…", cls: "sys" },
+];
+
+function showIntro() {
+  const intro = document.getElementById("intro");
+  const term = document.getElementById("introTerm");
+  const help = document.getElementById("introHelp");
+  if (!intro || !term) return;
+
+  // cache tout le reste du site
+  document
+    .querySelectorAll(".section")
+    .forEach((s) => s.classList.remove("active"));
+  intro.classList.add("active");
+
+  term.innerHTML = "";
+  help.hidden = true;
+
+  let i = 0;
+  function typeLine() {
+    if (i >= INTRO_LINES.length) {
+      help.hidden = false;
+      bindIntroContinue();
+      return;
+    }
+    const { t, cls } = INTRO_LINES[i++];
+    const line = document.createElement("div");
+    line.className = `intro-line ${cls || ""}`;
+    term.appendChild(line);
+
+    let j = 0;
+    function step() {
+      line.innerHTML = t.slice(0, j++) + `<span class="cursor"></span>`;
+      if (j <= t.length) {
+        setTimeout(step, 12 + Math.random() * 16);
+      } else {
+        line.innerHTML = t;
+        setTimeout(typeLine, 150);
+      }
+    }
+    step();
+  }
+  typeLine();
+}
+
+function bindIntroContinue() {
+  const intro = document.getElementById("intro");
+  const btn = document.getElementById("introContinue");
+  const trans = document.getElementById("introTransition");
+  const flash = trans.querySelector(".white-flash");
+
+  const proceed = () => {
+    document.removeEventListener("keydown", proceed);
+    document.removeEventListener("click", proceed);
+    btn && btn.removeEventListener("click", proceed);
+
+    // Glitch intensif + fondu
+    intro.classList.add("leaving");
+    trans.classList.add("run");
+
+    // petit bruit audio (facultatif)
+    const audio = new Audio("sounds/glitch-burst.mp3");
+    audio.volume = 0.25;
+    audio.play().catch(() => {});
+
+    // durée de la séquence = 1.2s environ
+    setTimeout(() => {
+      intro.classList.remove("active");
+      trans.classList.remove("run");
+      show("home");
+    }, 1200);
+  };
+
+  btn && btn.addEventListener("click", proceed, { once: true });
+  setTimeout(() => {
+    document.addEventListener("keydown", proceed, { once: true });
+    document.addEventListener("click", proceed, { once: true });
+  }, 0);
+}
+
+/* ===== Initialisation : toujours afficher l’intro avant HOME ===== */
+window.addEventListener("DOMContentLoaded", () => {
+  showIntro(); // toujours au lancement
 });
 
 function flash() {
@@ -525,74 +622,82 @@ window.addEventListener(
   { once: true }
 );
 
-const text = document.querySelectorAll('.overlay, .hoverlay');
-text.forEach(el => {
-  el.style.opacity='0';
-  setTimeout(()=> el.style.transition='opacity 1s ease',100);
-  setTimeout(()=> el.style.opacity='1',800);
+const text = document.querySelectorAll(".overlay, .hoverlay");
+text.forEach((el) => {
+  el.style.opacity = "0";
+  setTimeout(() => (el.style.transition = "opacity 1s ease"), 100);
+  setTimeout(() => (el.style.opacity = "1"), 800);
 });
 
 // Déverrouillage audio sur 1er clic + toggle son
-(function(){
-  const vid = document.getElementById('homeVid');
-  const btn = document.getElementById('homeSound');
-  if(!vid || !btn) return;
+(function () {
+  const vid = document.getElementById("homeVid");
+  const btn = document.getElementById("homeSound");
+  if (!vid || !btn) return;
 
   // iOS/Android : besoin d'un geste utilisateur pour activer le son
-  const unlock = ()=>{
-    if(vid.muted === true){
-      // On laisse muted par défaut pour éviter le rejet auto, l'utilisateur choisit
-      // Rien à faire ici, juste s'assurer que la vidéo joue
-      vid.play().catch(()=>{ /* silencieux */ });
+  const unlock = () => {
+    if (vid.muted === true) {
+
+      vid.play().catch(() => {
+        /* silencieux */
+      });
     }
-    document.removeEventListener('click', unlock);
-    document.removeEventListener('touchstart', unlock);
+    document.removeEventListener("click", unlock);
+    document.removeEventListener("touchstart", unlock);
   };
-  document.addEventListener('click', unlock, {once:true});
-  document.addEventListener('touchstart', unlock, {once:true});
+  document.addEventListener("click", unlock, { once: true });
+  document.addEventListener("touchstart", unlock, { once: true });
 
   // Toggle son
-  btn.addEventListener('click', ()=>{
+  btn.addEventListener("click", () => {
     // pour pouvoir démuter, la vidéo doit déjà être en lecture
-    vid.play().catch(()=>{});
+    vid.play().catch(() => {});
     vid.muted = !vid.muted;
-    btn.textContent = 'Son : ' + (vid.muted ? 'OFF' : 'ON');
+    btn.textContent = "Son : " + (vid.muted ? "OFF" : "ON");
     // volume très bas pour ambiance
     vid.volume = vid.muted ? 0 : 0.12;
   });
 
   // Si “économie de données” activée, on bascule sur l’image poster
-  const conn = navigator.connection || navigator.webkitConnection || navigator.mozConnection;
-  if(conn && conn.saveData){
-    vid.parentElement.classList.add('save-data');
-    vid.removeAttribute('autoplay');
+  const conn =
+    navigator.connection ||
+    navigator.webkitConnection ||
+    navigator.mozConnection;
+  if (conn && conn.saveData) {
+    vid.parentElement.classList.add("save-data");
+    vid.removeAttribute("autoplay");
     vid.pause();
   }
 })();
 
 /* Tilt 3D subtil + glare qui suit la souris sur la carte home */
-(function(){
-  const card = document.getElementById('homeCard');
-  if(!card) return;
+(function () {
+  const card = document.getElementById("homeCard");
+  if (!card) return;
 
-  const maxTilt = 6;  // degrés
+  const maxTilt = 6; // degrés
   const ease = 0.12;
-  let rx = 0, ry = 0, tx = 0, ty = 0; // rotation courante vs cible
+  let rx = 0,
+    ry = 0,
+    tx = 0,
+    ty = 0; // rotation courante vs cible
 
-  function onMove(e){
+  function onMove(e) {
     const r = card.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width;   // 0..1
-    const y = (e.clientY - r.top)  / r.height;  // 0..1
-    tx = (0.5 - y) * maxTilt;  // rotation X
-    ty = (x - 0.5) * maxTilt;  // rotation Y
+    const x = (e.clientX - r.left) / r.width; // 0..1
+    const y = (e.clientY - r.top) / r.height; // 0..1
+    tx = (0.5 - y) * maxTilt; // rotation X
+    ty = (x - 0.5) * maxTilt; // rotation Y
     // glare
-    card.style.setProperty('--gx', (x*100)+'%');
-    card.style.setProperty('--gy', (y*100)+'%');
+    card.style.setProperty("--gx", x * 100 + "%");
+    card.style.setProperty("--gy", y * 100 + "%");
   }
-  function onLeave(){
-    tx = 0; ty = 0;
+  function onLeave() {
+    tx = 0;
+    ty = 0;
   }
-  function tick(){
+  function tick() {
     rx += (tx - rx) * ease;
     ry += (ty - ry) * ease;
     card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg)`;
@@ -600,119 +705,164 @@ text.forEach(el => {
   }
   tick();
 
-  card.addEventListener('mousemove', onMove);
-  card.addEventListener('mouseleave', onLeave);
+  card.addEventListener("mousemove", onMove);
+  card.addEventListener("mouseleave", onLeave);
 })();
 
 /* =========================================================
    HUB TERMINAL — vivant + reset + réalisme
    ========================================================= */
-(function(){
+(function () {
   let hubMounted = false;
   let focusIndex = 0;
 
   // utilitaires “ambiance”
-  const hexChars = '0123456789abcdef';
-  const symb = '{}[]()<>!?/\\|*#%$+=-_;:,.^~';
-  const rand = (n,s) => Array.from({length:n},()=> s[(Math.random()*s.length)|0]).join('');
-  const hex  = n => Array.from({length:n},()=> hexChars[(Math.random()*16)|0]).join('');
-  const ts = ()=> {
-    const d=new Date();
-    const pad = x=> String(x).padStart(2,'0');
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const hexChars = "0123456789abcdef";
+  const symb = "{}[]()<>!?/\\|*#%$+=-_;:,.^~";
+  const rand = (n, s) =>
+    Array.from({ length: n }, () => s[(Math.random() * s.length) | 0]).join("");
+  const hex = (n) =>
+    Array.from({ length: n }, () => hexChars[(Math.random() * 16) | 0]).join(
+      ""
+    );
+  const ts = () => {
+    const d = new Date();
+    const pad = (x) => String(x).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
+      d.getDate()
+    )} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   };
-  const ip = ()=> `10.${(Math.random()*255|0)}.${(Math.random()*255|0)}.${(Math.random()*255|0)}`;
-  const junkRow = ()=> `0x${hex(5)}  ${rand(6,symb)}${rand(8,symb)}  0x${hex(5)}  ${rand(10,symb)}${rand(8,symb)}`;
+  const ip = () =>
+    `10.${(Math.random() * 255) | 0}.${(Math.random() * 255) | 0}.${
+      (Math.random() * 255) | 0
+    }`;
+  const junkRow = () =>
+    `0x${hex(5)}  ${rand(6, symb)}${rand(8, symb)}  0x${hex(5)}  ${rand(
+      10,
+      symb
+    )}${rand(8, symb)}`;
 
   // moteur de frappe + bip
-  const wait = ms => new Promise(r=>setTimeout(r,ms));
-  let audioCtx=null;
-  function blip(freq=240, dur=0.02){
-    try{
-      if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-      const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-      o.type='square'; o.frequency.value=freq; g.gain.value=0.035;
-      o.connect(g); g.connect(audioCtx.destination); o.start();
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  let audioCtx = null;
+  function blip(freq = 240, dur = 0.02) {
+    try {
+      if (!audioCtx)
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = "square";
+      o.frequency.value = freq;
+      g.gain.value = 0.035;
+      o.connect(g);
+      g.connect(audioCtx.destination);
+      o.start();
       g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
       o.stop(audioCtx.currentTime + dur + 0.005);
-    }catch(_){}
+    } catch (_) {}
   }
-  async function typeOut(container, lines, charDelay=12, lineDelay=22){
-    container.innerHTML = '';
-    for(const L of lines){
-      const ln  = document.createElement('div');
-      ln.className = `line ${L.cls||'crt-line'} typing`;
-      const span = document.createElement('span');
-      const cursor = document.createElement('span'); cursor.className='cursor';
-      ln.append(span,cursor); container.appendChild(ln);
-      for(let c=0;c<=L.t.length;c++){
-        span.textContent = L.t.slice(0,c);
-        if(L.t.trim()) blip(220 + (Math.random()*200|0), 0.010);
-        await wait(charDelay + (Math.random()*6|0));
+  async function typeOut(container, lines, charDelay = 12, lineDelay = 22) {
+    container.innerHTML = "";
+    for (const L of lines) {
+      const ln = document.createElement("div");
+      ln.className = `line ${L.cls || "crt-line"} typing`;
+      const span = document.createElement("span");
+      const cursor = document.createElement("span");
+      cursor.className = "cursor";
+      ln.append(span, cursor);
+      container.appendChild(ln);
+      for (let c = 0; c <= L.t.length; c++) {
+        span.textContent = L.t.slice(0, c);
+        if (L.t.trim()) blip(220 + ((Math.random() * 200) | 0), 0.01);
+        await wait(charDelay + ((Math.random() * 6) | 0));
       }
-      ln.classList.remove('typing');
-      if(L.after) L.after(ln); // hook après écriture (pour data-*)
+      ln.classList.remove("typing");
+      if (L.after) L.after(ln); // hook après écriture (pour data-*)
       await wait(lineDelay);
     }
   }
 
   // construit des lignes réalistes + fragments + commandes
-  function buildHubLines(){
+  function buildHubLines() {
     const seen = getSeen();
-    const count = fragments.reduce((n,id)=> n + (seen[id]?1:0), 0);
-    const pct = Math.round(count/fragments.length*100);
+    const count = fragments.reduce((n, id) => n + (seen[id] ? 1 : 0), 0);
+    const pct = Math.round((count / fragments.length) * 100);
 
     const header = [
-      { t: `:: LADD COMPANY // MEM_ARCHIVE`, cls:'crt-comment' },
-      { t: `:: NODE: LAX-2049   SESSION: ${ts()}   USER: GUEST   ACCESS: READ_ONLY`, cls:'crt-comment' },
-      { t: `:: NET: ${ip()}   HASH:${hex(8)}-${hex(8)}`, cls:'crt-kv' },
-      { t: ' ', cls:'crt-line' },
+      { t: `:: LADD COMPANY // MEM_ARCHIVE`, cls: "crt-comment" },
+      {
+        t: `:: NODE: LAX-2049   SESSION: ${ts()}   USER: GUEST   ACCESS: READ_ONLY`,
+        cls: "crt-comment",
+      },
+      { t: `:: NET: ${ip()}   HASH:${hex(8)}-${hex(8)}`, cls: "crt-kv" },
+      { t: " ", cls: "crt-line" },
     ];
 
-    const preJunk = Array.from({length:3}, ()=> ({ t: junkRow(), cls:'crt-line'}));
+    const preJunk = Array.from({ length: 3 }, () => ({
+      t: junkRow(),
+      cls: "crt-line",
+    }));
 
     const index = [
-      { t: `> DIR /ARCHIVES/FRAGMENTS`, cls:'crt-dir' },
-      { t: `  - SYSLOG_2087.ERR`, cls:'crt-file' },
-      { t: `  - GRIDMAP_LA.bin`, cls:'crt-file' },
+      { t: `> DIR /ARCHIVES/FRAGMENTS`, cls: "crt-dir" },
+      { t: `  - SYSLOG_2087.ERR`, cls: "crt-file" },
+      { t: `  - GRIDMAP_LA.bin`, cls: "crt-file" },
     ];
 
     // fragments cliquables (jaunes si verrouillés, cyan si vus)
     const fragLine = (id, label) => ({
-      t: `  - ${label}.DAT    [${seen[id]?'OK':'LOCKED'}]`,
-      cls: `crt-frag ${seen[id]?'unlocked':''}`,
+      t: `  - ${label}.DAT    [${seen[id] ? "OK" : "LOCKED"}]`,
+      cls: `crt-frag ${seen[id] ? "unlocked" : ""}`,
       frag: id,
-      after:(ln)=> ln.setAttribute('data-frag', id)
+      after: (ln) => ln.setAttribute("data-frag", id),
     });
 
     const frags = [
-      fragLine('fragment-1','FRAGMENT_01'),
-      fragLine('fragment-2','FRAGMENT_02'),
-      fragLine('fragment-3','FRAGMENT_03'),
-      fragLine('fragment-4','FRAGMENT_04'),
+      fragLine("fragment-1", "FRAGMENT_01"),
+      fragLine("fragment-2", "FRAGMENT_02"),
+      fragLine("fragment-3", "FRAGMENT_03"),
+      fragLine("fragment-4", "FRAGMENT_04"),
     ];
 
-    const midJunk = Array.from({length:4}, ()=> ({ t: junkRow(), cls:'crt-line'}));
+    const midJunk = Array.from({ length: 4 }, () => ({
+      t: junkRow(),
+      cls: "crt-line",
+    }));
 
     const status = [
-      { t: `> STATUS`, cls:'crt-dir' },
-      { t: `  MEM_RESTORED = ${count}/${fragments.length}  (${pct}%)`, cls:'crt-kv' },
-      { t: `  POLICY = READ_ONLY`, cls:'crt-kv' },
-      { t: `  WARN = ${pct<100?'INCOMPLETE_MEMORY':'NONE'}`, cls: pct<100?'crt-warn':'crt-ok' },
-      { t: ' ', cls:'crt-line' },
+      { t: `> STATUS`, cls: "crt-dir" },
+      {
+        t: `  MEM_RESTORED = ${count}/${fragments.length}  (${pct}%)`,
+        cls: "crt-kv",
+      },
+      { t: `  POLICY = READ_ONLY`, cls: "crt-kv" },
+      {
+        t: `  WARN = ${pct < 100 ? "INCOMPLETE_MEMORY" : "NONE"}`,
+        cls: pct < 100 ? "crt-warn" : "crt-ok",
+      },
+      { t: " ", cls: "crt-line" },
     ];
 
     const commands = [
-      { t: `> COMMANDS`, cls:'crt-dir' },
-      { t: `  [ENTER] OPEN_SELECTED  •  [↑/↓] NAV  •  [H] HOME`, cls:'crt-kv' },
-      { t: `  [R] `, cls:'crt-kv' }, // la suite “RESET_MEMORY” 
-      { t: `RESET_MEMORY`, cls:'crt-cmd reset crt-reset' },
-      { t: ' ', cls:'crt-line' },
+      { t: `> COMMANDS`, cls: "crt-dir" },
+      {
+        t: `  [ENTER] OPEN_SELECTED  •  [↑/↓] NAV  •  [H] HOME`,
+        cls: "crt-kv",
+      },
+      { t: `  [R] `, cls: "crt-kv" }, // la suite “RESET_MEMORY”
+      { t: `RESET_MEMORY`, cls: "crt-cmd reset crt-reset" },
+      { t: " ", cls: "crt-line" },
     ];
 
-    const postJunk = Array.from({length:5}, ()=> ({ t: junkRow(), cls:'crt-line'}));
+    const postJunk = Array.from({ length: 5 }, () => ({
+      t: junkRow(),
+      cls: "crt-line",
+    }));
     const footer = [
-      { t: 'HINT: ↑/↓ pour naviguer • Entrée pour ouvrir • R pour réinitialiser • H pour accueil', cls:'crt-help' }
+      {
+        t: "HINT: ↑/↓ pour naviguer • Entrée pour ouvrir • R pour réinitialiser • H pour accueil",
+        cls: "crt-help",
+      },
     ];
 
     return [
@@ -724,15 +874,15 @@ text.forEach(el => {
       ...status,
       ...commands,
       ...postJunk,
-      ...footer
+      ...footer,
     ];
   }
 
-  async function mountHub(){
-    const wrap = document.querySelector('#hub .crt-wrap');
-    const output = document.getElementById('crtOutput');
-    const viewport = document.getElementById('crtViewport');
-    if(!wrap || !output || !viewport) return;
+  async function mountHub() {
+    const wrap = document.querySelector("#hub .crt-wrap");
+    const output = document.getElementById("crtOutput");
+    const viewport = document.getElementById("crtViewport");
+    if (!wrap || !output || !viewport) return;
 
     hubMounted = true;
     focusIndex = 0;
@@ -740,152 +890,184 @@ text.forEach(el => {
     const lines = buildHubLines();
     await typeOut(output, lines);
 
-    // Post-processing: badges LOCK/OK 
-    const frags = [...output.querySelectorAll('.crt-frag')];
-    frags.forEach((el, idx)=>{
+    // Post-processing: badges LOCK/OK
+    const frags = [...output.querySelectorAll(".crt-frag")];
+    frags.forEach((el, idx) => {
       const txt = el.textContent;
       el.innerHTML = txt.replace(
         /\[(LOCKED|OK)\]/,
-        (_,m)=> `<span class="crt-badge ${m==='OK'?'ok':'lock'}">${m}</span>`
+        (_, m) =>
+          `<span class="crt-badge ${m === "OK" ? "ok" : "lock"}">${m}</span>`
       );
       el.dataset.index = idx;
-      el.addEventListener('click', ()=>{
+      el.addEventListener("click", () => {
         const id = el.dataset.frag;
-        blip(el.classList.contains('unlocked')?540:160, .03);
-        if(id) openFrag(id);
+        blip(el.classList.contains("unlocked") ? 540 : 160, 0.03);
+        if (id) openFrag(id);
       });
     });
 
     // commande reset (bouton + raccourci)
-    const resetBtn = output.querySelector('.crt-reset');
-    if(resetBtn){
-      resetBtn.addEventListener('click', doReset);
+    const resetBtn = output.querySelector(".crt-reset");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", doReset);
     }
 
-    function doReset(){
-      blip(120, .06);
-      const ok = confirm('Réinitialiser la mémoire (progression des fragments) ?');
-      if(!ok) return;
-      // reset progression 
+    function doReset() {
+      blip(120, 0.06);
+      const ok = confirm(
+        "Réinitialiser la mémoire (progression des fragments) ?"
+      );
+      if (!ok) return;
+      // reset progression
       resetProgress();
       // remonter & relancer l’index “propre”
-      output.innerHTML='';
+      output.innerHTML = "";
       mountHub();
     }
 
     // focus visuel & nav clavier
-    function setFocus(i){
-      frags.forEach(f=>f.classList.remove('focus'));
-      frags[i]?.classList.add('focus');
+    function setFocus(i) {
+      frags.forEach((f) => f.classList.remove("focus"));
+      frags[i]?.classList.add("focus");
     }
     setFocus(focusIndex);
 
-    viewport.addEventListener('keydown', (e)=>{
-      if(!hubMounted) return;
+    viewport.addEventListener("keydown", (e) => {
+      if (!hubMounted) return;
       const k = e.key.toLowerCase();
-      if(k==='arrowdown'){ focusIndex = (focusIndex+1) % frags.length; setFocus(focusIndex); blip(320,.02); e.preventDefault(); }
-      else if(k==='arrowup'){ focusIndex = (focusIndex-1+frags.length) % frags.length; setFocus(focusIndex); blip(300,.02); e.preventDefault(); }
-      else if(k==='enter'){ frags[focusIndex]?.click(); e.preventDefault(); }
-      else if(k==='h'){ show('home'); e.preventDefault(); }
-      else if(k==='r'){ doReset(); e.preventDefault(); }
+      if (k === "arrowdown") {
+        focusIndex = (focusIndex + 1) % frags.length;
+        setFocus(focusIndex);
+        blip(320, 0.02);
+        e.preventDefault();
+      } else if (k === "arrowup") {
+        focusIndex = (focusIndex - 1 + frags.length) % frags.length;
+        setFocus(focusIndex);
+        blip(300, 0.02);
+        e.preventDefault();
+      } else if (k === "enter") {
+        frags[focusIndex]?.click();
+        e.preventDefault();
+      } else if (k === "h") {
+        show("home");
+        e.preventDefault();
+      } else if (k === "r") {
+        doReset();
+        e.preventDefault();
+      }
     });
-    viewport.focus({preventScroll:true});
+    viewport.focus({ preventScroll: true });
 
     // petits glitches réguliers
     startGlitches(wrap);
   }
 
-  function startGlitches(wrap){
-    setInterval(()=>{ if(!hubMounted) return;
-      wrap.classList.add('pulse'); setTimeout(()=>wrap.classList.remove('pulse'), 480);
-    }, 2800 + (Math.random()*2200|0));
+  function startGlitches(wrap) {
+    setInterval(() => {
+      if (!hubMounted) return;
+      wrap.classList.add("pulse");
+      setTimeout(() => wrap.classList.remove("pulse"), 480);
+    }, 2800 + ((Math.random() * 2200) | 0));
 
-    setInterval(()=>{ if(!hubMounted) return;
-      wrap.classList.add('glitchy'); setTimeout(()=>wrap.classList.remove('glitchy'), 140);
-    }, 1600 + (Math.random()*1600|0));
+    setInterval(() => {
+      if (!hubMounted) return;
+      wrap.classList.add("glitchy");
+      setTimeout(() => wrap.classList.remove("glitchy"), 140);
+    }, 1600 + ((Math.random() * 1600) | 0));
   }
 
   // hook dans nav
   const _show = show;
-  window.show = function(id){
+  window.show = function (id) {
     _show(id);
-    if(id==='hub'){
-      const output = document.getElementById('crtOutput');
-      if(output) output.innerHTML='';
+    if (id === "hub") {
+      const output = document.getElementById("crtOutput");
+      if (output) output.innerHTML = "";
       mountHub();
-    }else{
+    } else {
       hubMounted = false;
     }
   };
 
-  if((location.hash||'')==='#hub'){ mountHub(); }
+  if ((location.hash || "") === "#hub") {
+    mountHub();
+  }
 })();
 
-
-const preJunk = Array.from({length: 5}, ()=> ({ t: junkRow(), cls:'crt-line'}));
-const midJunk = Array.from({length: 8}, ()=> ({ t: junkRow(), cls:'crt-line'}));
-const postJunk = Array.from({length: 10}, ()=> ({ t: junkRow(), cls:'crt-line'}));
+const preJunk = Array.from({ length: 5 }, () => ({
+  t: junkRow(),
+  cls: "crt-line",
+}));
+const midJunk = Array.from({ length: 8 }, () => ({
+  t: junkRow(),
+  cls: "crt-line",
+}));
+const postJunk = Array.from({ length: 10 }, () => ({
+  t: junkRow(),
+  cls: "crt-line",
+}));
 
 // ====== Son terminal (toggle global) ======
 window.TERM_SOUND = true;
-window.setTermSound = function(on){
+window.setTermSound = function (on) {
   window.TERM_SOUND = !!on;
-  const btn = document.getElementById('crtSoundBtn');
-  if(btn) btn.textContent = 'SOUND: ' + (window.TERM_SOUND ? 'ON' : 'OFF');
+  const btn = document.getElementById("crtSoundBtn");
+  if (btn) btn.textContent = "SOUND: " + (window.TERM_SOUND ? "ON" : "OFF");
 };
 
-
-function blip(freq=240, dur=0.02){
-  if(!window.TERM_SOUND) return;     // <<— coupe le son si OFF
-  try{
-    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-    if(audioCtx.state === 'suspended') audioCtx.resume();
-    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-    o.type='square'; o.frequency.value=freq; g.gain.value=0.035;
-    o.connect(g); g.connect(audioCtx.destination); o.start();
+function blip(freq = 240, dur = 0.02) {
+  if (!window.TERM_SOUND) return; // <<— coupe le son si OFF
+  try {
+    if (!audioCtx)
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    const o = audioCtx.createOscillator(),
+      g = audioCtx.createGain();
+    o.type = "square";
+    o.frequency.value = freq;
+    g.gain.value = 0.035;
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start();
     g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
     o.stop(audioCtx.currentTime + dur + 0.005);
-  }catch(_){}
+  } catch (_) {}
 }
 
+function doReset() {
+  blip(120, 0.06);
+  const ok = confirm("Réinitialiser la mémoire (progression des fragments) ?");
+  if (!ok) return;
 
-function doReset(){
-  blip(120, .06);
-  const ok = confirm('Réinitialiser la mémoire (progression des fragments) ?');
-  if(!ok) return;
+  try {
+    localStorage.removeItem(KEY);
+  } catch (_) {}
+  updateUI();
 
-
-  try{
-    localStorage.removeItem(KEY);   
-  }catch(_){}
-  updateUI();                       
-
-
-  output.innerHTML = '';
+  output.innerHTML = "";
   mountHub();
 }
 
-const wrap = document.querySelector('#hub .crt-wrap');
-const output = document.getElementById('crtOutput');
-const viewport = document.getElementById('crtViewport');
+const wrap = document.querySelector("#hub .crt-wrap");
+const output = document.getElementById("crtOutput");
+const viewport = document.getElementById("crtViewport");
 
-
-// Bouton son 
-let sbtn = document.getElementById('crtSoundBtn');
-if(!sbtn){
-  sbtn = document.createElement('button');
-  sbtn.id = 'crtSoundBtn';
-  sbtn.type = 'button';
-  sbtn.className = 'crt-sound-btn';
-  sbtn.textContent = 'SOUND: ' + (window.TERM_SOUND ? 'ON' : 'OFF');
+// Bouton son
+let sbtn = document.getElementById("crtSoundBtn");
+if (!sbtn) {
+  sbtn = document.createElement("button");
+  sbtn.id = "crtSoundBtn";
+  sbtn.type = "button";
+  sbtn.className = "crt-sound-btn";
+  sbtn.textContent = "SOUND: " + (window.TERM_SOUND ? "ON" : "OFF");
   wrap.appendChild(sbtn);
-  sbtn.addEventListener('click', ()=>{
+  sbtn.addEventListener("click", () => {
     setTermSound(!window.TERM_SOUND);
-    blip(300, .03);
+    blip(300, 0.03);
   });
+} else if (k === "m") {
+  setTermSound(!window.TERM_SOUND);
+  blip(280, 0.02);
+  e.preventDefault();
 }
-
-else if(k==='m'){ setTermSound(!window.TERM_SOUND); blip(280,.02); e.preventDefault(); }
-
-
-
