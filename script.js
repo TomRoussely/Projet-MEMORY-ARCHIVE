@@ -1,6 +1,3 @@
-/* =========================
-   State & helpers
-   ========================= */
 const KEY = "ma2089_seen";
 const THEME_KEY = "ma2089_theme";
 const BOOT_KEY = "ma2089_booted";
@@ -50,10 +47,17 @@ function show(id) {
 
   handleParallaxFor(id);
   handleHScrollFor(id);
+
+  if (id === "hub") {
+  setTimeout(() => {
+    speak(
+      "Terminal restauré… Lecture mémoire autorisée.Si tu vois ceci, c’est que ma trace n’a pas été effacée.",
+      { delay: 1000, hold: 4500 }
+    );
+  }, 600); // laisse le temps au hub d'apparaître
 }
-function openFrag(id) {
-  show(id);
 }
+
 
 /* =========================
    progression, badges, glitch control
@@ -120,29 +124,6 @@ function initFinale() {
       }, 900);
     };
   }
-}
-
-/* =========================
-   Theme switcher
-   ========================= */
-(function themeInit() {
-  const btn = document.getElementById("themeBtn");
-  if (!btn) return;
-  const saved = localStorage.getItem(THEME_KEY) || "br";
-  applyTheme(saved);
-  btn.addEventListener("click", () => {
-    const curr = document.documentElement.getAttribute("data-theme") || "br";
-    applyTheme(curr === "br" ? "cp" : "br");
-  });
-  // test boot button
-  const bt = document.getElementById("bootTestBtn");
-  bt && bt.addEventListener("click", () => startBoot());
-})();
-function applyTheme(t) {
-  document.documentElement.setAttribute("data-theme", t);
-  localStorage.setItem(THEME_KEY, t);
-  const btn = document.getElementById("themeBtn");
-  if (btn) btn.textContent = "Palette: " + (t === "cp" ? "CP2077" : "BR2049");
 }
 
 /* =========================
@@ -465,19 +446,12 @@ function bootRun() {
   });
 }
 
-/* =========================
-   Boot bypass if already run
-   ========================= */
 document.addEventListener("DOMContentLoaded", () => {
   const already = localStorage.getItem(BOOT_KEY) === "1";
   if (already) {
-    // keep home active; button still starts boot if you want to replay
   }
 });
 
-/* =========================
-   Magnetic text re-init if new content
-   ========================= */
 function reInitMagnet() {
   document.querySelectorAll(".gtext").forEach((el) => {
     const span = el.querySelector(".magnet");
@@ -486,116 +460,16 @@ function reInitMagnet() {
   });
 }
 
-/* =========================
-   Boot & UI init
-   ========================= */
-/* ===== INTRO: plein écran + transition propre vers HOME ===== */
-const INTRO_LINES = [
-  { t: "[SYSTEM] Initializing context brief…", cls: "sys" },
-  {
-    t: "Los Angeles, 2049. Les mégastructures étouffent le ciel. La pluie dissout les néons.",
-    cls: "",
-  },
-  {
-    t: "La frontière entre humains et <replicants> s’estompe. Mémoire = marchandise.",
-    cls: "",
-  },
-  {
-    t: "Vous êtes lié au projet <NEXUS_10>. Les fragments trouvés sont cryptés.",
-    cls: "",
-  },
-  {
-    t: "Votre objectif : <span class='hl'>réassembler la mémoire</span> en parcourant l’archive.",
-    cls: "",
-  },
-  {
-    t: "Rappel : certains souvenirs mentent mieux que la vérité.",
-    cls: "warn",
-  },
-  { t: "Chargement du shell d’accès…", cls: "sys" },
-];
-
-function showIntro() {
-  const intro = document.getElementById("intro");
-  const term = document.getElementById("introTerm");
-  const help = document.getElementById("introHelp");
-  if (!intro || !term) return;
-
-  // cache tout le reste du site
-  document
-    .querySelectorAll(".section")
-    .forEach((s) => s.classList.remove("active"));
-  intro.classList.add("active");
-
-  term.innerHTML = "";
-  help.hidden = true;
-
-  let i = 0;
-  function typeLine() {
-    if (i >= INTRO_LINES.length) {
-      help.hidden = false;
-      bindIntroContinue();
-      return;
-    }
-    const { t, cls } = INTRO_LINES[i++];
-    const line = document.createElement("div");
-    line.className = `intro-line ${cls || ""}`;
-    term.appendChild(line);
-
-    let j = 0;
-    function step() {
-      line.innerHTML = t.slice(0, j++) + `<span class="cursor"></span>`;
-      if (j <= t.length) {
-        setTimeout(step, 12 + Math.random() * 16);
-      } else {
-        line.innerHTML = t;
-        setTimeout(typeLine, 150);
-      }
-    }
-    step();
+(function bootInit() {
+  const hash = (location.hash || "").replace("#", "");
+  // Si hash vide ou 'intro' => on laisse l'intro gérer le premier écran,
+  // sinon on respecte le hash.
+  if (!hash || hash === "intro") {
+  } else {
+    show(hash);
   }
-  typeLine();
-}
-
-function bindIntroContinue() {
-  const intro = document.getElementById("intro");
-  const btn = document.getElementById("introContinue");
-  const trans = document.getElementById("introTransition");
-  const flash = trans.querySelector(".white-flash");
-
-  const proceed = () => {
-    document.removeEventListener("keydown", proceed);
-    document.removeEventListener("click", proceed);
-    btn && btn.removeEventListener("click", proceed);
-
-    // Glitch intensif + fondu
-    intro.classList.add("leaving");
-    trans.classList.add("run");
-
-    // petit bruit audio (facultatif)
-    const audio = new Audio("sounds/glitch-burst.mp3");
-    audio.volume = 0.25;
-    audio.play().catch(() => {});
-
-    // durée de la séquence = 1.2s environ
-    setTimeout(() => {
-      intro.classList.remove("active");
-      trans.classList.remove("run");
-      show("home");
-    }, 1200);
-  };
-
-  btn && btn.addEventListener("click", proceed, { once: true });
-  setTimeout(() => {
-    document.addEventListener("keydown", proceed, { once: true });
-    document.addEventListener("click", proceed, { once: true });
-  }, 0);
-}
-
-/* ===== Initialisation : toujours afficher l’intro avant HOME ===== */
-window.addEventListener("DOMContentLoaded", () => {
-  showIntro(); // toujours au lancement
-});
+  updateUI();
+})();
 
 function flash() {
   const flash = document.createElement("div");
@@ -638,7 +512,8 @@ text.forEach((el) => {
   // iOS/Android : besoin d'un geste utilisateur pour activer le son
   const unlock = () => {
     if (vid.muted === true) {
-
+      // On laisse muted par défaut pour éviter le rejet auto, l'utilisateur choisit
+      // Rien à faire ici, juste s'assurer que la vidéo joue
       vid.play().catch(() => {
         /* silencieux */
       });
@@ -671,7 +546,6 @@ text.forEach((el) => {
   }
 })();
 
-/* Tilt 3D subtil + glare qui suit la souris sur la carte home */
 (function () {
   const card = document.getElementById("homeCard");
   if (!card) return;
@@ -708,6 +582,84 @@ text.forEach((el) => {
   card.addEventListener("mousemove", onMove);
   card.addEventListener("mouseleave", onLeave);
 })();
+
+/* ==========================================
+   Narrateur global (voix Officier M)
+   ========================================== */
+
+let narratorQueue = [];
+let narratorIsTyping = false;
+let narratorTimer = null;
+
+function speak(text, opts = {}) {
+  const wrap = document.getElementById("narrator");
+  const box = document.getElementById("narratorText");
+  if (!wrap || !box) return;
+
+  const item = {
+    line: String(text || ""),
+    delay: opts.delay ?? 0,
+    speed: opts.speed ?? 22,
+    autoHide: opts.autoHide ?? true,
+    hold: opts.hold ?? 2600,
+  };
+
+  narratorQueue.push(item);
+  if (!narratorIsTyping) processNarratorQueue();
+}
+
+function processNarratorQueue() {
+  const wrap = document.getElementById("narrator");
+  const box = document.getElementById("narratorText");
+  if (!wrap || !box) {
+    narratorIsTyping = false;
+    return;
+  }
+
+  if (!narratorQueue.length) {
+    narratorIsTyping = false;
+    return;
+  }
+
+  narratorIsTyping = true;
+  const { line, delay, speed, autoHide, hold } = narratorQueue.shift();
+
+  if (narratorTimer) clearTimeout(narratorTimer);
+
+  const run = () => {
+    wrap.classList.add("visible");
+    wrap.classList.remove("idle");
+    box.textContent = "";
+
+    let i = 0;
+
+    function step() {
+      box.textContent = line.slice(0, i);
+      i++;
+      if (i <= line.length) {
+        narratorTimer = setTimeout(step, speed + Math.random() * 18);
+      } else {
+        wrap.classList.add("idle");
+        if (autoHide) {
+          narratorTimer = setTimeout(() => {
+            wrap.classList.remove("visible");
+            processNarratorQueue();
+          }, hold);
+        } else {
+          processNarratorQueue();
+        }
+      }
+    }
+
+    step();
+  };
+
+  if (delay > 0) {
+    narratorTimer = setTimeout(run, delay);
+  } else {
+    run();
+  }
+}
 
 /* =========================================================
    HUB TERMINAL — vivant + reset + réalisme
@@ -761,7 +713,7 @@ text.forEach((el) => {
       o.stop(audioCtx.currentTime + dur + 0.005);
     } catch (_) {}
   }
-  async function typeOut(container, lines, charDelay = 12, lineDelay = 22) {
+  async function typeOut(container, lines, charDelay = 8, lineDelay = 4) {
     container.innerHTML = "";
     for (const L of lines) {
       const ln = document.createElement("div");
@@ -782,7 +734,6 @@ text.forEach((el) => {
     }
   }
 
-  // construit des lignes réalistes + fragments + commandes
   function buildHubLines() {
     const seen = getSeen();
     const count = fragments.reduce((n, id) => n + (seen[id] ? 1 : 0), 0);
@@ -798,7 +749,7 @@ text.forEach((el) => {
       { t: " ", cls: "crt-line" },
     ];
 
-    const preJunk = Array.from({ length: 3 }, () => ({
+    const preJunk = Array.from({ length: 4 }, () => ({
       t: junkRow(),
       cls: "crt-line",
     }));
@@ -807,6 +758,29 @@ text.forEach((el) => {
       { t: `> DIR /ARCHIVES/FRAGMENTS`, cls: "crt-dir" },
       { t: `  - SYSLOG_2087.ERR`, cls: "crt-file" },
       { t: `  - GRIDMAP_LA.bin`, cls: "crt-file" },
+
+      // === FICHIERS “NORMAUX” (ouvrent un code viewer) ===
+      {
+        t: `  - public/SCAN_ROUTINE.rte`,
+        cls: "crt-file",
+        action: "open",
+        codeId: "scan_js",
+      },
+      {
+        t: `  - public/LA_MAP_INDEX.tds`,
+        cls: "crt-file",
+        action: "open",
+        codeId: "map_json",
+      },
+      {
+        t: `  - tools/decoder.c`,
+        cls: "crt-file",
+        action: "open",
+        codeId: "decoder_c",
+      },
+      {
+        t: `  - Clique sur les Fragments Jaunes`,
+      },
     ];
 
     // fragments cliquables (jaunes si verrouillés, cyan si vus)
@@ -816,15 +790,13 @@ text.forEach((el) => {
       frag: id,
       after: (ln) => ln.setAttribute("data-frag", id),
     });
-
     const frags = [
       fragLine("fragment-1", "FRAGMENT_01"),
       fragLine("fragment-2", "FRAGMENT_02"),
       fragLine("fragment-3", "FRAGMENT_03"),
-      fragLine("fragment-4", "FRAGMENT_04"),
     ];
 
-    const midJunk = Array.from({ length: 4 }, () => ({
+    const midJunk = Array.from({ length: 0 }, () => ({
       t: junkRow(),
       cls: "crt-line",
     }));
@@ -849,7 +821,7 @@ text.forEach((el) => {
         t: `  [ENTER] OPEN_SELECTED  •  [↑/↓] NAV  •  [H] HOME`,
         cls: "crt-kv",
       },
-      { t: `  [R] `, cls: "crt-kv" }, // la suite “RESET_MEMORY”
+      { t: `  [R] `, cls: "crt-kv" },
       { t: `RESET_MEMORY`, cls: "crt-cmd reset crt-reset" },
       { t: " ", cls: "crt-line" },
     ];
@@ -860,14 +832,14 @@ text.forEach((el) => {
     }));
     const footer = [
       {
-        t: "HINT: ↑/↓ pour naviguer • Entrée pour ouvrir • R pour réinitialiser • H pour accueil",
+        t: "HINT: ↑/↓ naviguer • Entrée ouvrir • R réinitialiser • H accueil",
         cls: "crt-help",
       },
     ];
 
+    // On retourne toutes les lignes et on posera les data-* juste après le rendu
     return [
       ...header,
-      ...preJunk,
       ...index,
       ...frags,
       ...midJunk,
@@ -890,6 +862,49 @@ text.forEach((el) => {
     const lines = buildHubLines();
     await typeOut(output, lines);
 
+    // 1) Transformer les lignes .crt-file en actions si elles contiennent nos libellés
+    [...output.querySelectorAll(".crt-file")].forEach((el) => {
+      const txt = el.textContent.trim();
+      if (txt.includes("SCAN_ROUTINE.js")) {
+        el.dataset.action = "open";
+        el.dataset.codeId = "scan_js";
+      }
+      if (txt.includes("LA_MAP_INDEX.json")) {
+        el.dataset.action = "open";
+        el.dataset.codeId = "map_json";
+      }
+      if (txt.includes("decoder.c")) {
+        el.dataset.action = "open";
+        el.dataset.codeId = "decoder_c";
+      }
+
+      if (txt.includes("ROOT_KEYS.pem") || txt.includes("NEXUS_CORE.mem")) {
+        el.dataset.action = "warn";
+      }
+      if (txt.includes("CORE_DUMP.bin") || txt.includes("KERNEL_PATCH.sys")) {
+        el.dataset.action = "crash";
+      }
+    });
+
+    // 2) Clic global sur le viewport HUB
+    viewport.addEventListener("click", (e) => {
+      const t = e.target.closest(".crt-file, .crt-frag");
+      if (!t) return;
+
+      // a) Fragments → comportement existant
+      if (t.classList.contains("crt-frag")) return; // déjà géré plus haut
+
+      // b) Fichiers spéciaux
+      const action = t.dataset.action;
+      if (action === "open") {
+        hubShowCode(t.dataset.codeId);
+      } else if (action === "warn") {
+        hubWarn();
+      } else if (action === "crash") {
+        hubHardCrash();
+      }
+    });
+
     // Post-processing: badges LOCK/OK
     const frags = [...output.querySelectorAll(".crt-frag")];
     frags.forEach((el, idx) => {
@@ -907,7 +922,6 @@ text.forEach((el) => {
       });
     });
 
-    // commande reset (bouton + raccourci)
     const resetBtn = output.querySelector(".crt-reset");
     if (resetBtn) {
       resetBtn.addEventListener("click", doReset);
@@ -981,12 +995,71 @@ text.forEach((el) => {
   const _show = show;
   window.show = function (id) {
     _show(id);
+
     if (id === "hub") {
       const output = document.getElementById("crtOutput");
       if (output) output.innerHTML = "";
       mountHub();
+
+      // voix de M à l'ouverture du hub
+      speak(
+      "ENFIN quelqu'un est tombé sur ce terminal",
+        { delay: 100 }
+      );
+      speak(
+        "Tu vas enfin pouvoir savoir ce qu'ils essaient de caché depuis tout ce temps .",
+        { delay: 2200 }
+      );
+      speak(
+      "Ouvre les fragments bloqué en jaune pour reconstituer la vérité, prend ton temps.",
+        { delay: 3200 }
+      );
     } else {
       hubMounted = false;
+    }
+
+    if (id === "fragment-1") {
+      // voix pour le fragment 1
+      speak(
+        "Premiers dérapages. Missions de routine qui ne l’étaient pas vraiment.",
+        { delay: 500 }
+      );
+      speak(
+        "Regarde les images comme des souvenirs bruts. Pas comme des preuves.",
+        { delay: 2600 }
+      );
+    }
+
+    if (id === "fragment-2") {
+      // dossier de M
+      speak(
+        "Voilà comment ils m’ont rangé dans leurs systèmes : un numéro de série avec un uniforme.",
+        { delay: 500 }
+      );
+      speak(
+        "Lis bien entre les lignes. Ce qu’ils ne disent pas est plus important que ce qu’ils écrivent.",
+        { delay: 2600 }
+      );
+    }
+
+    if (id === "fragment-3") {
+      // crime de masse
+      speak(
+        "Ici, tu regardes ce qu’ils appellent ‘prévention’. Moi, j’appelle ça une préparation de massacre.",
+        { delay: 500 }
+      );
+      speak(
+        "Tout est déjà en place. Il manquait juste quelqu’un pour le voir.",
+        { delay: 2600 }
+      );
+    }
+
+    if (id === "finale") {
+      // dossier NEXUS_10
+      speak(
+        "Si tu ouvres ce dossier, il n’y aura plus de retour en arrière.",
+        { delay: 700 }
+      );
     }
   };
 
@@ -995,18 +1068,6 @@ text.forEach((el) => {
   }
 })();
 
-const preJunk = Array.from({ length: 5 }, () => ({
-  t: junkRow(),
-  cls: "crt-line",
-}));
-const midJunk = Array.from({ length: 8 }, () => ({
-  t: junkRow(),
-  cls: "crt-line",
-}));
-const postJunk = Array.from({ length: 10 }, () => ({
-  t: junkRow(),
-  cls: "crt-line",
-}));
 
 // ====== Son terminal (toggle global) ======
 window.TERM_SOUND = true;
@@ -1015,25 +1076,6 @@ window.setTermSound = function (on) {
   const btn = document.getElementById("crtSoundBtn");
   if (btn) btn.textContent = "SOUND: " + (window.TERM_SOUND ? "ON" : "OFF");
 };
-
-function blip(freq = 240, dur = 0.02) {
-  if (!window.TERM_SOUND) return; // <<— coupe le son si OFF
-  try {
-    if (!audioCtx)
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === "suspended") audioCtx.resume();
-    const o = audioCtx.createOscillator(),
-      g = audioCtx.createGain();
-    o.type = "square";
-    o.frequency.value = freq;
-    g.gain.value = 0.035;
-    o.connect(g);
-    g.connect(audioCtx.destination);
-    o.start();
-    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
-    o.stop(audioCtx.currentTime + dur + 0.005);
-  } catch (_) {}
-}
 
 function doReset() {
   blip(120, 0.06);
@@ -1053,21 +1095,312 @@ const wrap = document.querySelector("#hub .crt-wrap");
 const output = document.getElementById("crtOutput");
 const viewport = document.getElementById("crtViewport");
 
-// Bouton son
-let sbtn = document.getElementById("crtSoundBtn");
-if (!sbtn) {
-  sbtn = document.createElement("button");
-  sbtn.id = "crtSoundBtn";
-  sbtn.type = "button";
-  sbtn.className = "crt-sound-btn";
-  sbtn.textContent = "SOUND: " + (window.TERM_SOUND ? "ON" : "OFF");
-  wrap.appendChild(sbtn);
-  sbtn.addEventListener("click", () => {
-    setTermSound(!window.TERM_SOUND);
-    blip(300, 0.03);
-  });
-} else if (k === "m") {
-  setTermSound(!window.TERM_SOUND);
-  blip(280, 0.02);
-  e.preventDefault();
+// ======== INTRO AUTO ========
+document.addEventListener("DOMContentLoaded", () => {
+  const intro = document.getElementById("intro");
+  const term = document.getElementById("introTerm");
+  const help = document.getElementById("introHelp");
+  const cont = document.getElementById("introContinue");
+  const trans = document.getElementById("introTransition");
+
+  if (!intro || !term) return;
+
+  const LINES = [
+    "[SYSTEM] Initializing context brief…",
+    "1982 — Rick Deckard traque les réplicants. La frontière entre l’humain et la machine s’efface.",
+    "2049 — Les Nexus 9 vivent parmi nous. Les souvenirs deviennent programmables.",
+    "2079 — Signal résiduel détecté dans les serveurs du LAX_NODE.",
+    "Projet : NEXUS_10 // Statut : corrompu / partiellement récupérable.",
+    "Mission : réassembler la mémoire. Certains souvenirs mentent mieux que la vérité.",
+    "Chargement du shell d’accès…",
+    "Ouverture du terminal mémoire, ",
+  ];
+
+  function typeLine(line, text, speed = 20, next) {
+    let i = 0;
+    const cursor = document.createElement("span");
+    cursor.className = "cursor";
+
+    // on crée un nœud texte à mettre AVANT le curseur, qu'on mettra à jour
+    const txt = document.createTextNode("");
+    line.appendChild(txt);
+    line.appendChild(cursor);
+
+    function step() {
+      txt.nodeValue = text.slice(0, i);
+      i++;
+      if (i <= text.length) {
+        setTimeout(step, speed);
+      } else {
+        cursor.remove();
+        next && next();
+      }
+    }
+    step();
+  }
+
+  function runIntro() {
+    // Montre l’intro en overlay
+    intro.style.display = "block";
+    intro.classList.add("active");
+    term.innerHTML = "";
+    if (help) help.hidden = true;
+
+    let i = 0;
+    function next() {
+      if (i >= LINES.length) {
+        if (help) help.hidden = false;
+        bindContinue();
+        return;
+      }
+      const line = document.createElement("div");
+      line.className = "intro-line";
+      term.appendChild(line);
+      typeLine(line, LINES[i++], 15, next);
+    }
+    next();
+  }
+
+  function endIntro() {
+    // petite transition
+    if (trans) trans.classList.add("run");
+    setTimeout(() => {
+      intro.classList.remove("active");
+      intro.style.display = "none";
+      if (typeof show === "function") show("home"); // -> on arrive sur HOME
+    }, 600);
+  }
+
+  function bindContinue() {
+    const proceed = () => {
+      document.removeEventListener("keydown", proceed);
+      document.removeEventListener("click", proceed);
+      cont && cont.removeEventListener("click", proceed);
+      endIntro();
+    };
+    cont && cont.addEventListener("click", proceed, { once: true });
+    document.addEventListener("keydown", proceed, { once: true });
+    document.addEventListener("click", proceed, { once: true });
+  }
+
+  // Lancer automatiquement si pas de hash ou hash === #intro
+  const h = (location.hash || "").toLowerCase();
+  if (!h || h === "#intro") runIntro();
+});
+
+// === Ouverture code viewer ===
+function hubShowCode(codeId) {
+  const modal = document.getElementById("codeModal");
+  const title = document.getElementById("codeTitle");
+  const cont = document.getElementById("codeContent");
+  const close = document.getElementById("codeClose");
+  if (!modal || !title || !cont) return;
+
+  const snip = CODE_SNIPPETS[codeId];
+  if (!snip) return;
+
+  title.textContent = snip.title;
+  cont.textContent = snip.content; // pas de highlight volontairement (monospace brut)
+  modal.hidden = false;
+
+  const off = () => {
+    modal.hidden = true;
+    close.removeEventListener("click", off);
+    modal.removeEventListener("click", onBg);
+  };
+  const onBg = (e) => {
+    if (e.target === modal) off();
+  };
+  close.addEventListener("click", off);
+  modal.addEventListener("click", onBg);
 }
+
+// === Warning (confidentiel) ===
+function hubWarn() {
+  const w = document.getElementById("codeWarn");
+  const c = document.getElementById("warnClose");
+  if (!w || !c) return;
+  w.hidden = false;
+  const off = () => {
+    w.hidden = true;
+    c.removeEventListener("click", off);
+  };
+  c.addEventListener("click", off);
+}
+
+// === Crash + reboot → HOME ===
+function hubHardCrash() {
+  const wrap = document.getElementById("hardCrash");
+  const matrix = document.getElementById("crashMatrix");
+  if (!wrap || !matrix) return;
+
+  // Remplir “matrix”
+  matrix.textContent = "";
+  const rows = 28,
+    cols = Math.min(120, Math.floor(window.innerWidth / 10));
+  for (let r = 0; r < rows; r++) {
+    let line = "";
+    for (let c = 0; c < cols; c++) {
+      line += Math.random() < 0.14 ? (Math.random() < 0.5 ? "0" : "X") : " ";
+    }
+    matrix.textContent += line + "\n";
+  }
+
+  wrap.hidden = false;
+
+  // Reboot après 2.2s → on revient HOME
+  setTimeout(() => {
+    wrap.hidden = true;
+    if (typeof show === "function") show("home");
+  }, 2200);
+}
+
+// On n'utilise plus show() pour les fragments : on les "dock" en onglet
+// ===== Dock state =====
+const _dockState = {
+  created: false,
+  tabs: new Map(), // id -> { tab, panel }
+  currentId: null,
+};
+
+// ===== crée le container dock s’il n’existe pas =====
+function ensureDock() {
+  if (_dockState.created) return;
+
+  const dock = document.createElement("section");
+  dock.id = "dock";
+  dock.className = "dock";
+  dock.setAttribute("hidden", "");
+
+  dock.innerHTML = `
+    <div class="dock-tabs" id="dockTabs"></div>
+    <div class="dock-panel" id="dockPanel"></div>
+  `;
+
+  document.body.appendChild(dock);
+  _dockState.created = true;
+}
+
+function focusDockTab(id) {
+  _dockState.currentId = id;
+  const entry = _dockState.tabs.get(id);
+  if (!entry) return;
+
+  const { tab, panel } = entry;
+
+  // onglet actif
+  document.querySelectorAll(".dock-tab").forEach((t) => {
+    t.classList.remove("active");
+  });
+  tab.classList.add("active");
+
+  // panel actif
+  document.querySelectorAll(".dock-panel .pane").forEach((p) => {
+    p.hidden = true;
+  });
+  panel.hidden = false;
+
+  panel.focus({ preventScroll: true });
+}
+
+function closeDockTab(id) {
+  const entry = _dockState.tabs.get(id);
+  if (!entry) return;
+
+  entry.tab.remove();
+  entry.panel.remove();
+  _dockState.tabs.delete(id);
+
+  // si plus aucun onglet → cacher le dock
+  if (_dockState.tabs.size === 0) {
+    const dock = document.getElementById("dock");
+    if (dock) dock.setAttribute("hidden", "");
+    _dockState.currentId = null;
+    return;
+  }
+
+  // si on ferme l'actif → focus sur le dernier ouvert
+  if (_dockState.currentId === id) {
+    const lastId = Array.from(_dockState.tabs.keys()).pop();
+    if (lastId) focusDockTab(lastId);
+  }
+}
+
+// ===== Ouvre un fragment en onglet  =====
+function openFrag(id) {
+  ensureDock();
+
+  // marquer vu / progression
+  if (fragments.includes(id)) {
+    setSeen(id);
+  }
+
+  const dock = document.getElementById("dock");
+  const tabs = document.getElementById("dockTabs");
+  const panelRoot = document.getElementById("dockPanel");
+
+  if (!dock || !tabs || !panelRoot) return;
+
+  dock.removeAttribute("hidden");
+
+  // si l'onglet existe déjà → juste focus
+  if (_dockState.tabs.has(id)) {
+    focusDockTab(id);
+    return;
+  }
+
+  // --- créer l'onglet
+  const tab = document.createElement("button");
+  tab.className = "dock-tab";
+  tab.innerHTML = `
+    <span class="t">${id.replace("fragment-", "FRAG ")}</span>
+    <span class="x" aria-label="Fermer">×</span>
+  `;
+  tabs.appendChild(tab);
+
+  // --- créer le panneau
+  const panel = document.createElement("div");
+  panel.className = "pane";
+  panel.setAttribute("tabindex", "0");
+
+  const fragEl = document.getElementById(id);
+  if (fragEl) {
+    const clone = fragEl.cloneNode(true);
+    const inner = clone.querySelector("main, .stage, .content") || clone;
+    panel.innerHTML = "";
+    panel.appendChild(inner);
+  } else {
+    panel.textContent = "[Fragment introuvable]";
+  }
+
+  panel.hidden = true;
+  panelRoot.appendChild(panel);
+
+  // enregistrer
+  _dockState.tabs.set(id, { tab, panel });
+
+  // événements de l'onglet
+  tab.addEventListener("click", (e) => {
+    const isClose = e.target.classList.contains("x");
+    if (isClose) {
+      closeDockTab(id);
+    } else {
+      focusDockTab(id);
+    }
+  });
+
+  // fermeture clavier: Esc ou Ctrl/Cmd+W
+  panel.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeDockTab(id);
+    } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "w") {
+      e.preventDefault();
+      closeDockTab(id);
+    }
+  });
+
+  // montrer cet onglet
+  focusDockTab(id);
+}
+

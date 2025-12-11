@@ -1,4 +1,9 @@
-/* === Glitch keyframes manquants === */
+@font-face {
+  font-family: myfont; 
+  src: url(CyberformDemo.otf); 
+}
+
+
 @keyframes scan {
   0% {
     transform: translateY(0);
@@ -74,14 +79,6 @@ html[data-theme="cp"] {
   --accent-2: #fcee09;
   --glass: rgba(10, 14, 20, 0.55);
 }
-html[data-theme="br"] {
-  --bg: #0b0f14;
-  --fg: #e8eef6;
-  --muted: #a8b6c8;
-  --accent: #7be0ff;
-  --accent-2: #ff7a00;
-  --glass: rgba(9, 12, 16, 0.5);
-}
 
 /* small helpers */
 .hidden {
@@ -94,7 +91,6 @@ html[data-theme="br"] {
 .card {
   background: var(--glass);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius);
   padding: 1.6rem;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
   max-width: 1000px;
@@ -135,12 +131,11 @@ html[data-theme="br"] {
   display: block;
   height: 100%;
   width: 0;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  background: var(--accent);
 }
 .btn {
   display: inline-block;
   padding: 0.6rem 0.9rem;
-  border-radius: 10px;
   border: 1px solid color-mix(in oklab, var(--accent) 60%, white 10%);
   cursor: pointer;
   background: transparent;
@@ -620,7 +615,7 @@ html[data-theme="br"] {
   white-space: pre-wrap;
 }
 .terminal {
-  position: absolute;
+  text-align: center;
   left: 5vw;
   right: 5vw;
   bottom: 16vh;
@@ -903,12 +898,10 @@ body {
   }
 }
 
-/* --- Carte holo intégrée à la vidéo --- */
 .home-card {
   position: relative;
   max-width: 980px;
   padding: clamp(18px, 3.5vw, 32px);
-  border-radius: 16px;
   /* verre + reflets */
   background: linear-gradient(
       180deg,
@@ -931,7 +924,6 @@ body {
 
 /* bordure holo animée */
 .home-card.holo {
-  --stroke: linear-gradient(90deg, var(--c-cyan), var(--c-amber), var(--c-mag));
   border-image: var(--stroke) 1;
   position: relative;
 }
@@ -939,7 +931,6 @@ body {
   content: "";
   position: absolute;
   inset: -1px;
-  border-radius: 16px;
   padding: 1px;
   background: linear-gradient(
     90deg,
@@ -1090,7 +1081,7 @@ body {
 
 .crt-bar {
   position: sticky;
-  top: 64px;
+  top: px;
   z-index: 2;
   display: flex;
   align-items: center;
@@ -1520,350 +1511,779 @@ body {
   box-shadow: 0 0 0 1px #02d7f2 inset, 0 0 22px rgba(2, 215, 242, 0.28);
 }
 
-/* ====== INTRO / CONTEXT ====== */
-:root {
-  --c-cyan: #02d7f2;
-  --c-yellow: #f2e900;
-  --c-blue: #007aff;
-  --c-red: #ff1111;
-  --c-black: #000000;
+/* === Effets HERO : glow + flicker + lightsweep === */
+.glow-cyan {
+  color: var(--fg);
+  text-shadow: 0 0 6px rgba(2, 215, 242, 0.6), 0 0 18px rgba(2, 215, 242, 0.35);
+}
+.neon-flicker {
+  animation: neonFlicker 3.2s infinite steps(1, end);
+}
+@keyframes neonFlicker {
+  0%,
+  8% {
+    opacity: 0.85;
+    filter: brightness(1);
+  }
+  9% {
+    opacity: 0.55;
+    filter: brightness(0.8);
+  }
+  10%,
+  12% {
+    opacity: 1;
+    filter: brightness(1.1);
+  }
+  24% {
+    opacity: 0.9;
+  }
+  25% {
+    opacity: 0.6;
+  }
+  26%,
+  100% {
+    opacity: 1;
+  }
 }
 
-#intro.section {
-  display: block;
-} /* visible par défaut, on gère l’ordre en JS */
-#intro:not(.active) {
-  display: none;
-}
-
-.intro-wrap {
+.lightsweep {
   position: relative;
-  min-height: calc(100vh - 64px);
-  background: var(--c-black);
-  color: #cfe8ff;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
-    monospace;
-  overflow: hidden;
 }
-
-/* Effets CRT */
-.intro-scan {
+.lightsweep::after {
+  content: "";
   position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.15;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(2, 215, 242, 0.12) 0,
-    rgba(2, 215, 242, 0.12) 1px,
-    transparent 2px,
-    transparent 3px
+  inset: -20%;
+  background: linear-gradient(
+    75deg,
+    transparent 45%,
+    rgba(255, 255, 255, 0.14) 50%,
+    transparent 55%
   );
-  animation: introScan 2s linear infinite;
+  transform: translateX(-120%) rotate(2deg);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: sweep 6s ease-in-out infinite;
 }
-@keyframes introScan {
+@keyframes sweep {
   0% {
-    transform: translateY(0);
+    transform: translateX(-120%) rotate(2deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.55;
+  }
+  20% {
+    transform: translateX(120%) rotate(2deg);
+    opacity: 0;
   }
   100% {
-    transform: translateY(2px);
-  }
-}
-
-.intro-vignette {
-  position: absolute;
-  inset: -2%;
-  pointer-events: none;
-  opacity: 0.35;
-  background: radial-gradient(
-      120% 90% at 50% 50%,
-      transparent 68%,
-      rgba(0, 0, 0, 0.55) 100%
-    ),
-    radial-gradient(
-      130% 100% at 50% -10%,
-      rgba(2, 215, 242, 0.14),
-      transparent 50%
-    );
-}
-
-/* Top bar */
-.intro-bar {
-  position: sticky;
-  top: 64px;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.6rem 0.9rem;
-  background: linear-gradient(180deg, #00141a, #000a0d);
-  border-bottom: 1px solid #003a66;
-  color: var(--c-cyan);
-  text-shadow: 0 0 8px #00a3bb88;
-}
-.intro-bar .brand {
-  color: var(--c-blue);
-  font-weight: 700;
-}
-.intro-bar .right {
-  margin-left: auto;
-  opacity: 0.8;
-}
-.intro-bar .sep {
-  opacity: 0.5;
-}
-
-/* Terminal */
-.intro-term {
-  position: relative;
-  z-index: 1;
-  padding: 24px 18px 28px;
-  font-size: clamp(0.95rem, 1.7vw, 1.1rem);
-  line-height: 1.55;
-  color: #cfe8ff;
-  text-shadow: 0 0 8px #00a3bb66;
-  white-space: pre-wrap;
-}
-
-/* Lignes tapées */
-.intro-line {
-  opacity: 0.98;
-}
-.intro-line .k {
-  color: #93d9ff;
-} /* clés */
-.intro-line .v {
-  color: #f7ffe6;
-} /* valeurs */
-.intro-line .sys {
-  color: var(--c-blue);
-} /* infos système */
-.intro-line .warn {
-  color: var(--c-red);
-} /* alertes */
-.intro-line .hl {
-  color: var(--c-yellow);
-  text-shadow: 0 0 8px #f2e90066;
-} /* highlight */
-
-.intro-typing .cursor {
-  display: inline-block;
-  width: 10px;
-  height: 1.15em;
-  translate: 0 0.22em;
-  background: var(--c-cyan);
-  box-shadow: 0 0 10px var(--c-cyan);
-  animation: introBlink 1s step-end infinite;
-}
-@keyframes introBlink {
-  50% {
+    transform: translateX(120%) rotate(2deg);
     opacity: 0;
   }
 }
 
-/* Aide / CTA */
-.intro-help {
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.5rem 0.9rem;
-  border-top: 1px solid #003a66;
-  background: linear-gradient(180deg, transparent, #0008);
-  color: #8bd7ff;
-  letter-spacing: 0.06em;
-}
-.intro-btn {
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  border: 1px solid #024a5a;
-  color: var(--fg);
-  background: #001018;
-  box-shadow: 0 0 0 1px #01242b inset, 0 0 14px rgba(2, 215, 242, 0.15);
-}
-.intro-btn:hover {
-  background: #001a22;
-  box-shadow: 0 0 0 1px #02d7f2 inset, 0 0 22px rgba(2, 215, 242, 0.28);
-}
-.intro-help .hint {
-  opacity: 0.8;
+/* Intensifie le glare au survol de la carte hero */
+.home-card:hover .glare {
+  opacity: 0.55;
 }
 
-:root {
-  --c-cyan: #02d7f2;
-  --c-yellow: #f2e900;
-  --c-blue: #007aff;
-  --c-red: #ff1111;
-  --c-black: #000;
+/* === Typo "terminal" & fragments cliquables du HUB === */
+.crt-line {
+  color: #9cdcff;
 }
-#intro.section {
-  display: block;
+.crt-comment {
+  color: #68bce0;
+  opacity: 0.9;
 }
-#intro:not(.active) {
-  display: none;
+.crt-dir {
+  color: var(--blue);
 }
-.intro-wrap {
-  position: relative;
-  min-height: calc(100vh - 64px);
-  background: var(--c-black);
-  color: #cfe8ff;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
-    monospace;
-  overflow: hidden;
+.crt-file {
+  color: #8ad1ff;
 }
-.intro-scan {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.15;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(2, 215, 242, 0.12) 0,
-    rgba(2, 215, 242, 0.12) 1px,
-    transparent 2px,
-    transparent 3px
-  );
-  animation: introScan 2s linear infinite;
+.crt-kv {
+  color: #cfe9ff;
 }
-@keyframes introScan {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(2px);
-  }
+.crt-ok {
+  color: #86ffc1;
 }
-.intro-vignette {
-  position: absolute;
-  inset: -2%;
-  pointer-events: none;
-  opacity: 0.35;
-  background: radial-gradient(
-      120% 90% at 50% 50%,
-      transparent 68%,
-      rgba(0, 0, 0, 0.55) 100%
-    ),
-    radial-gradient(
-      130% 100% at 50% -10%,
-      rgba(2, 215, 242, 0.14),
-      transparent 50%
-    );
+.crt-warn {
+  color: var(--red);
 }
-.intro-bar {
-  position: sticky;
-  top: 64px;
-  z-index: 2;
-  display: flex;
-  gap: 0.8rem;
-  align-items: center;
-  padding: 0.6rem 0.9rem;
-  background: linear-gradient(180deg, #00141a, #000a0d);
-  border-bottom: 1px solid #003a66;
-  color: var(--c-cyan);
-  text-shadow: 0 0 8px #00a3bb88;
-}
-.intro-bar .brand {
-  color: var(--c-blue);
-  font-weight: 700;
-}
-.intro-bar .right {
-  margin-left: auto;
-  opacity: 0.8;
-}
-.intro-bar .sep {
-  opacity: 0.5;
-}
-.intro-term {
-  position: relative;
-  z-index: 1;
-  padding: 24px 18px 28px;
-  font-size: clamp(0.95rem, 1.7vw, 1.1rem);
-  line-height: 1.55;
-  color: #cfe8ff;
-  text-shadow: 0 0 8px #00a3bb66;
-  white-space: pre-wrap;
-}
-.intro-line {
-  opacity: 0.98;
-}
-.intro-line .k {
-  color: #93d9ff;
-}
-.intro-line .v {
-  color: #f7ffe6;
-}
-.intro-line .sys {
-  color: var(--c-blue);
-}
-.intro-line .warn {
-  color: var(--c-red);
-}
-.intro-line .hl {
-  color: var(--c-yellow);
-  text-shadow: 0 0 8px #f2e90066;
-}
-.intro-typing .cursor {
+
+/* commandes inline (ex: reset) */
+.crt-cmd {
   display: inline-block;
-  width: 10px;
-  height: 1.15em;
-  translate: 0 0.22em;
-  background: var(--c-cyan);
-  box-shadow: 0 0 10px var(--c-cyan);
-  animation: introBlink 1s step-end infinite;
+  padding: 0.05rem 0.35rem;
+  border: 1px dashed #0a3a55;
+  border-radius: 3px;
+  color: var(--yellow);
+  background: rgba(242, 233, 0, 0.06);
 }
-@keyframes introBlink {
-  50% {
-    opacity: 0;
+
+/* fragments cliquables (verrouillés / déverrouillés) */
+.crt-frag {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  padding: 0.05rem 0.25rem 0.05rem 0.5rem;
+  border-left: 2px solid transparent;
+  border-radius: 2px;
+  color: var(--yellow);
+  text-shadow: 0 0 12px var(--yellow), 0 0 4px #f2e90088;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.crt-frag.unlocked {
+  color: var(--cyan);
+  text-shadow: 0 0 10px var(--cyan), 0 0 3px #00a3bb;
+}
+.crt-frag:hover,
+.crt-frag:focus,
+.crt-frag.focus {
+  background: linear-gradient(90deg, rgba(2, 215, 242, 0.12), transparent 65%);
+  border-left-color: var(--cyan);
+  outline: none;
+}
+.crt-frag::after {
+  content: "▌";
+  margin-left: 0.35rem;
+  opacity: 0.2;
+}
+.crt-frag.unlocked::after {
+  opacity: 0.12;
+}
+
+/* badges fin de ligne (LOCK/OK/… ) */
+.crt-badge {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0 0.35rem 0.05rem;
+  border-radius: 3px;
+  border: 1px solid currentColor;
+  font-size: 0.82em;
+  letter-spacing: 0.08em;
+}
+.crt-badge.ok {
+  color: var(--cyan);
+}
+.crt-badge.lock {
+  color: var(--red);
+}
+
+/* === Accessibilité & motion === */
+@media (prefers-reduced-motion: reduce) {
+  .neon-flicker,
+  .lightsweep::after,
+  .home-noise,
+  #glitchFx::after {
+    animation: none !important;
   }
 }
-.intro-help {
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.5rem 0.9rem;
-  border-top: 1px solid #003a66;
-  background: linear-gradient(180deg, transparent, #0008);
-  color: #8bd7ff;
-  letter-spacing: 0.06em;
+
+/* === Petits renforts de perfs === */
+.section.active {
+  will-change: opacity, transform;
 }
-.intro-btn {
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  border: 1px solid #024a5a;
-  color: var(--fg);
-  background: #001018;
-  box-shadow: 0 0 0 1px #01242b inset, 0 0 14px rgba(2, 215, 242, 0.15);
-}
-.intro-btn:hover {
-  background: #001a22;
-  box-shadow: 0 0 0 1px #02d7f2 inset, 0 0 22px rgba(2, 215, 242, 0.28);
+.crt-viewport {
+  will-change: transform;
 }
 
 #intro {
   position: fixed;
   inset: 0;
-  z-index: 9999; /* toujours au-dessus du boot, du hub, etc. */
-  background: #000;
-}
-#intro:not(.active) {
+  z-index: 9999;
+  background: radial-gradient(circle at 50% 50%, #020617 0%, #01040a 100%);
+  color: #00ffff;
+  font-family: "Share Tech Mono", monospace;
+  overflow: hidden;
   display: none;
 }
-.intro-wrap {
+
+#intro.active {
+  display: block;
+  animation: introFadeIn 0.8s ease-out forwards;
+}
+
+@keyframes introFadeIn {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+.intro-terminal {
+  padding: 3rem 6%;
+  white-space: pre-wrap;
+  font-size: 1rem;
+  line-height: 1.6;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+  overflow-y: auto;
+  height: 80%;
+}
+
+.intro-line.sys {
+  color: #00fff2;
+  text-shadow: 0 0 10px #00fff2;
+}
+.intro-line.warn {
+  color: #ff5f5f;
+  text-shadow: 0 0 10px #ff3a3a;
+}
+.cursor {
+  display: inline-block;
+  width: 0.6ch;
+  background: #00ffff;
+  animation: blink 1s step-start infinite;
+}
+@keyframes blink {
+  50% {
+    background: transparent;
+  }
+}
+
+.intro-help {
+  margin-left: 10vh;
+  color: #bdfcff;
+  margin-top: 1rem;
+}
+
+.intro-btn {
+  margin-top: 0.6rem;
+  border: 1px solid #00ffff;
+  padding: 0.5rem 1.2rem;
+  background: transparent;
+  color: #00ffff;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 0.3s, color 0.3s;
+}
+.intro-btn:hover {
+  background: #00ffff;
+  color: #001b1f;
+}
+
+.intro-transition {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+}
+.intro-transition.run .white-flash {
+  opacity: 1;
+  animation: flash 0.3s ease;
+}
+@keyframes flash {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* === Dock semi-plein écran au dessus du HUB === */
+.dock[hidden] {
+  display: none;
+}
+.dock[hidden] {
+  display: none;
+}
+
+.dock {
+  position: fixed;
+  /* marges plus petites = panneau plus grand */
+  inset: 5vh 4vw auto 4vw;
+  height: 82vh; /* + de hauteur */
+  display: grid;
+  grid-template-rows: 44px 1fr;
+  background: color-mix(in srgb, #031316 85%, transparent);
+  border: 1px solid var(--cy, #00e5ff);
+  backdrop-filter: blur(6px) saturate(120%);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  z-index: 2000; /* au-dessus de tout */
+  overflow: hidden;
+  transform-origin: top center;
+  animation: dockOpen 0.28s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+@keyframes dockOpen {
+  from {
+    transform: translateY(-8px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.dock-tabs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  background: linear-gradient(180deg, rgba(0, 229, 255, 0.08), transparent);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.25);
+}
+.dock-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  font: 600 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #bffaff;
+  background: rgba(0, 229, 255, 0.06);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: 0.15s ease;
+}
+.dock-tab:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+.dock-tab.active {
+  opacity: 1;
+  background: rgba(0, 229, 255, 0.14);
+}
+
+.dock-tab .x {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  color: #bffaff;
+  font-weight: 700;
+  font-size: 11px;
+}
+.dock-tab .x:hover {
+  background: rgba(0, 229, 255, 0.2);
+}
+
+.dock-panel .section {
+  position: static;
+  display: block;
+  height: auto;
+  background: none;
+  box-shadow: none;
+}
+.dock-panel .section.active {
+  display: block;
+}
+
+.dock {
+  position: fixed;
+  inset: 10vh 8vw auto 8vw;
+  background: rgba(0, 0, 0, 0.92);
+  border: 1px solid var(--cp-cyan, #00f0ff);
+  box-shadow: 0 0 32px rgba(0, 0, 0, 0.9);
+  z-index: 50;
+}
+
+.dock-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dock-tab {
+  font-family: var(--mono, monospace);
+  font-size: 11px;
+
+  background: #05070a;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  cursor: pointer;
+}
+
+.dock-tab .x {
+  margin-left: 8px;
+  opacity: 0.7;
+}
+
+.dock-panel {
   position: relative;
+  padding: 12px 16px;
+  max-height: 60vh;
+  overflow: auto;
+  font-size: 14px;
+  opacity: 1;
+  transform: none;
+}
+
+.dock-close-btn {
+  font-family: var(--mono, monospace);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  cursor: pointer;
+}
+
+.dock {
+  position: fixed;
+  left: 8 vw;
+  right: 8vw;
+  top: 12vh;
+  background: rgba(0, 0, 0, 0.94);
+  border: 1px solid rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+  z-index: 50;
+  backdrop-filter: blur(6px);
+}
+
+.dock-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.dock-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-family: var(--mono, monospace);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: #05070a;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+}
+
+.dock-tab.active {
+  background: rgba(0, 255, 255, 0.1);
+  border-color: rgba(0, 255, 255, 0.7);
+}
+
+.dock-tab .x {
+  opacity: 0.7;
+  font-size: 13px;
+}
+
+.pane {
+  outline: none;
+}
+
+.dock-close-btn {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-family: var(--mono, monospace);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: transparent;
+  cursor: pointer;
+}
+
+/* FIX FINAL DU DOCK */
+.dock-panel {
+  position: relative !important;
+  inset: auto !important;
+  padding: 12px 16px;
+  max-height: 80vh;
+  overflow: auto;
+  font-size: 14px;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ===== FRAGMENT 1 — pile de souvenirs plein écran ===== */
+
+.mem-stack {
+  position: relative;
+  height: calc(100vh - 64px); /* 64px = topbar */
+  margin-top: 64px; /* pour ne pas passer sous la barre */
+  overflow-y: auto; /* on scrolle DANS le fragment */
+  scroll-snap-type: y mandatory; /* scroll-snap vertical */
+  background: #000;
+}
+
+.mem-slide {
+  position: relative;
+  min-height: calc(100vh - 64px);
+  scroll-snap-align: start;
+  overflow: hidden;
+}
+
+/* image plein écran */
+.mem-bg {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  color: #cfe8ff;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
-    monospace;
+  object-fit: cover;
+  filter: brightness(0.9) contrast(1.1);
+  transform: scale(1.03);
 }
+
+/* overlay texte */
+.mem-overlay {
+  position: relative;
+  z-index: 1;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 1.4rem 1.6rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.6));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.7);
+  color: var(--fg);
+  top: 55%;
+  transform: translateY(-50%);
+}
+
+.mem-overlay h2 {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+}
+
+.mem-overlay p {
+  margin: 0;
+  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+  color: var(--muted);
+}
+
+/* petit hint de scroll (optionnel) */
+.mem-stack::after {
+  content: "SCROLL ▾";
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.65);
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+}
+@media (max-width: 640px) {
+  .mem-overlay {
+    margin-inline: 1.2rem;
+    padding: 1rem 1.1rem;
+  }
+}
+
+/* Débloque le scroll pour le fragment 2 */
+#fragment-2 {
+  overflow-y: auto !important;
+  height: auto !important;
+}
+
+/* Le main ne doit plus bloquer le scroll */
+#fragment-2 .stage.frag2 {
+  position: relative !important;
+  min-height: 100vh;
+  height: auto;
+  overflow: visible !important;
+}
+
+/* L'image verticale full-screen */
+.frag2-img {
+  display: block;
+  width: 100%;
+  height: auto; /* important pour garder le ratio */
+  object-fit: cover;
+  object-position: center top;
+}
+
+/* Place l'overlay au-dessus */
+#fragment-2 .overlay {
+  position: absolute;
+  bottom: 5vh;
+  left: 5vw;
+  right: 5vw;
+  max-width: 600px;
+  z-index: 10;
+}
+
+.logo {
+  font-family: myfont;
+  font-size: 1rem;
+}
+
+
+/* ==== FRAGMENT 1 — panneau de texte typing + slides fullscreen ==== */
+
+.mem-frag {
+  position: relative;
+  width: 100%;
+}
+
+.mem-slide {
+  position: relative;
+  min-height: calc(100vh - 64px); /* sous la topbar */
+  width: 100%;
+  overflow: hidden;
+}
+
+.mem-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.82) contrast(1.1) saturate(1.05);
+}
+
+/* PANEL TEXTE — transparent + néon cyan */
+.mem-text-panel {
+  position: fixed;
+  top: 90px;
+  right: 4vw;
+  width: 380px;
+  min-height: 180px;
+
+  padding: 1rem 1.3rem;
+  border-radius: 12px;
+
+  /* VRAIE TRANSPARENCE */
+  background: rgba(5, 10, 16, 0.35);
+  backdrop-filter: blur(8px) saturate(1.2);
+  border: 1px solid rgba(0, 238, 255, 0.35);
+
+  box-shadow: 0 0 18px rgba(0, 255, 255, 0.18);
+
+  z-index: 50;
+}
+
+.mem-text {
+  margin-top: 0.6rem;
+  font-family: ui-monospace, Menlo, Consolas, "Courier New", monospace;
+  white-space: pre-wrap;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #d9faff;
+
+  min-height: 90px;
+}
+
+/* Curseur typing */
+.mem-text::after {
+  content: "▌";
+  margin-left: 4px;
+  animation: blink 1s steps(1,end) infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+@media (max-width: 768px) {
+  .mem-text-panel {
+    position: fixed;
+    bottom: 4vh;
+    top: auto;
+    right: 6vw;
+    left: 6vw;
+    width: auto;
+  }
+}
+
+/* =========================
+   Narrateur (voix de M)
+   ========================= */
+
+.narrator-bubble {
+  position: fixed;
+  top: 120px;
+  right: 3vw;
+
+  max-width: 620px;
+  background: rgba(5, 8, 12, 0.35);
+  backdrop-filter: blur(6px);
+  padding: 1.6rem 1.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius);
+
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+
+  z-index: 4000;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.narrator-bubble.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
+
+.narrator-avatar {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.narrator-text-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.narrator-name {
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0.9;
+  margin-bottom: 0.3rem;
+}
+
+.narrator-text {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--fg);
+  white-space: pre-wrap;
+}
+
+
+/* curseur de saisie */
+.narrator-text::after {
+  content: "▌";
+  margin-left: 2px;
+  animation: blink 1s step-end infinite;
+}
+
+/* quand on a fini d'écrire (plus de typing) */
+.narrator-bubble.idle .narrator-text::after {
+  content: "";
+  animation: none;
+}
+
+/* mobile : bulle plus basse et centrée */
+@media (max-width: 720px) {
+  .narrator-bubble {
+    top: auto;
+    bottom: 16px;
+    right: 5vw;
+    left: 5vw;
+    max-width: none;
+  }
+}
+
 
 
