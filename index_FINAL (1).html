@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MEMORY ARCHIVE // 20 — One Page</title>
+    <link rel="stylesheet" href="style_FINAL (2).css" />
+  </head>
+  <body>
+    <audio id="ambience" src="" loop autoplay muted></audio>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <h1 class="logo">MEMORY ARCHIVE //</h1>
+      <div class="progress" aria-hidden="true">
+        <span id="progressBar"></span>
+      </div>
+      <a class="btn" href="#hub" onclick="show('hub');return false">Hub</a>
+    </header>
+
+    <!-- GLITCH FX -->
+    <div id="glitchFx" aria-hidden="true"></div>
+
+    <section id="intro" class="section intro-screen">
+      <div class="intro-overlay">
+        <div id="introTerm" class="intro-terminal"></div>
+
+        <div id="introHelp" class="intro-help" hidden>
+          <p>Appuyez sur une touche ou cliquez pour continuer ▸</p>
+          <button id="introContinue" class="intro-btn">Continuer</button>
+        </div>
+      </div>
+
+      <div id="introTransition" class="intro-transition">
+        <div class="glitch-pass"></div>
+        <div class="white-flash"></div>
+      </div>
+    </section>
+
+    <!-- HOME (hero vidéo plein écran) -->
+    <section id="home" class="section">
+      <div class="home-hero">
+        <!-- Vidéo de fond -->
+        <video
+          id="homeVid"
+          class="home-bg"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="auto"
+        >
+          <source src="ASSET/VDE/everything finished.mp4" type="video/mp4" />
+        </video>
+
+        <!-- Overlays pour lisibilité -->
+        <div class="home-gradient" aria-hidden="true"></div>
+        <div class="home-noise" aria-hidden="true"></div>
+
+        <!-- Contenu -->
+        <div class="home-inner">
+          <div
+            class="card home-card holo lightsweep"
+            id="homeCard"
+            aria-live="polite"
+          >
+            <!-- contour décoratif -->
+            <span class="edge tl"></span>
+            <span class="edge tr"></span>
+            <span class="edge bl"></span>
+            <span class="edge br"></span>
+
+            <!-- lueur de glare -->
+            <span class="glare" aria-hidden="true"></span>
+
+            <!-- contenu -->
+            <h1 class="h1 gtext glow-cyan neon-flicker">
+              <span class="magnet">&gt; ACCESSING…</span>
+            </h1>
+            <p class="p">
+              Fragments retrouvés dans les serveurs de Los Angeles. Statut :
+              <em>corrompu</em> / <em>partiellement récupérable</em>.
+            </p>
+
+            <div class="home-actions">
+              <a class="btn" href="#boot" onclick="startBoot(); return false;"
+                >Entrer dans le terminal</a
+              >
+              <button class="btn" id="homeSound">Son : OFF</button>
+            </div>
+
+            <!-- micro-HUD -->
+            <div class="hud">
+              <span class="dot"></span> LAX_NODE_2049
+              <span class="sep">/</span> MEM: 62%
+              <span class="sep">/</span> SIGNAL: −72dB
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOOT -->
+    <section id="boot" class="section" aria-hidden="false">
+      <div class="boot-wrap">
+        <div class="boot-hud" aria-hidden="true">
+          <div class="grid v"></div>
+          <div class="grid h"></div>
+          <div class="scanlines"></div>
+          <div class="noise"></div>
+
+          <div class="widget top-left">
+            <div class="label">MEMORY CLUSTERS</div>
+            <div class="bars" id="bootBars"></div>
+          </div>
+
+          <div class="widget top-right">
+            <div class="label">ENERGY REACTOR</div>
+            <div class="gauge"><span id="bootGauge"></span></div>
+            <div class="percent"><span id="bootPct">0</span>%</div>
+          </div>
+
+          <div class="widget bottom-left">
+            <div class="label">ENGINE LIST</div>
+            <ul id="bootList" class="engine"></ul>
+          </div>
+
+          <div class="widget bottom-right">
+            <div class="label">STATUS</div>
+            <div class="log" id="bootLog"></div>
+          </div>
+        </div>
+
+        <div class="terminal" id="bootTerminal" aria-live="polite"></div>
+
+        <div class="progressline">
+          <div class="plabel">DECRYPTION</div>
+          <div class="pbar"><span id="bootProgress"></span></div>
+        </div>
+
+        <div class="press" id="bootPress" hidden>
+          Press any key to continue ▍
+        </div>
+      </div>
+    </section>
+
+    <!-- HUB — TERMINAL CRT FULLSCREEN -->
+    <section id="hub" class="section">
+      <div class="crt-wrap" role="application" aria-label="Terminal fragments">
+        <!-- Effets CRT -->
+        <div class="crt-mask" aria-hidden="true"></div>
+        <div class="crt-scan" aria-hidden="true"></div>
+        <div class="crt-vignette" aria-hidden="true"></div>
+
+        <!-- Barre d’info -->
+        <header class="crt-bar">
+          <span class="brand">TERMLINK v5.2</span>
+          <span class="sep">•</span> NODE: LAX_2049
+          <span class="sep">•</span> ACCESS: GUEST
+          <span class="sep">•</span> ATTEMPTS: <span class="px">▮ ▮</span>
+          <span class="right">↑/↓ navigate — Enter ouvrir — H hub</span>
+        </header>
+
+        <!-- Zone texte -->
+        <div id="crtViewport" class="crt-viewport" tabindex="0">
+          <pre id="crtOutput" class="crt-output" aria-live="polite"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- FRAGMENT 1 — Souvenirs d'intervention -->
+<section id="fragment-1" class="section">
+  <main class="mem-frag" aria-label="Souvenirs d'intervention — Officier M">
+
+    <!-- Slide 1 -->
+    <section class="mem-slide" data-text-id="mem1">
+      <img
+        src="ASSET/img/Nuit_dystopique_DA_007aff.png"
+        alt="Intervention nocturne sous la pluie, gyrophares dans le smog"
+        class="mem-bg"
+      />
+    </section>
+
+    <div class="block"></div>
+
+    <!-- Slide 2 -->
+    <section class="mem-slide" data-text-id="mem2">
+      <img
+        src="ASSET/img/bladerunner2_DA_007aff.png"
+        alt="Ruelle rouge, silhouettes en fuite, projecteurs dans la brume"
+        class="mem-bg"
+      />
+    </section>
+
+     <div class="block"></div>
+
+    <!-- Slide 3 -->
+    <section class="mem-slide" data-text-id="mem3">
+      <img
+        src="ASSET/img/ncpd_scene_DA_007aff.png "
+        alt="Docks industriels noyés dans le brouillard, véhicules en approche"
+        class="mem-bg"
+      />
+    </section>
+
+    <!-- Boîte de texte à droite (typing) -->
+    <aside class="overlay">
+      <h2 class="gtext">
+        <span class="magnet">FRAGMENT 01 — LOGS D’INTERVENTION</span>
+      </h2>
+      <pre id="memText" class="mem-text"></pre>
+    </aside>
+
+  </main>
+</section>
+
+
+    <!-- FRAGMENT 2 -->
+    <section id="fragment-2" class="section">
+      <main class="stage frag2" data-parallax>
+        <img
+          class="frag2-img"
+          src="ASSET/img/Plan de travail 1affiche1.svg"
+          alt="Archive dossier M"
+        />
+        </div>
+      </main>
+    </section>
+
+    <!-- FRAGMENT 3 -->
+    <section id="fragment-3" class="section">
+      <main class="stage fade" data-parallax>
+        <img
+          class="bg"
+          src="ASSET/img/archive_corridor_DA_007aff_soft (2).png"
+          alt="Usine à souvenirs"
+        />
+        <video
+          class="fx"
+          autoplay
+          muted
+          loop
+          playsinline
+          data-depth="0.06"
+          style="display: none"
+        >
+          <source src="assets/motion/steam.webm" type="video/webm" />
+        </video>
+        <div class="frag-nav">
+          <a class="mini" onclick="show('hub')">Hub</a>
+          <a class="mini" onclick="openFrag('fragment-1')">01</a>
+          <a class="mini" onclick="openFrag('fragment-2')">02</a>
+          <a class="mini" onclick="openFrag('fragment-4')">04</a>
+        </div>
+      </main>
+    </section>
+
+<!-- NARRATEUR (bulle en haut à droite) -->
+<div id="narrator" class="narrator-bubble" hidden>
+  <img
+    src="ASSET/img/OFficierM.webp"
+    alt="Officier M"
+    id="narratorPortrait" class="narrator-avatar"
+  />
+  <div class="narrator-content">
+    <div class="narrator-name">OFFICIER M // N9-M4762</div>
+    <pre id="narratorText" class="narrator-text"></pre>
+  </div>
+</div>
+
+<!-- VOIX OFF OFFICER M -->
+<audio id="m_hub_intro" src="HUB.mp3" preload="auto"></audio>
+<audio id="m_frag1_intro" src="frag1.mp3" preload="auto"></audio>
+<audio id="m_frag2_dossier" src="frag2.mp3" preload="auto"></audio>
+<audio id="m_frag3_crime" src="frag3.mp3" preload="auto"></audio>
+<audio id="warningVoice" src="warning.mp3" preload="auto"></audio>
+<audio id="warningSiren" src="Mountain Audio - Warning Alarm.mp3" preload="auto"></audio>
+
+
+
+   <script src="script_FINAL (1).js"></script>
+  
+
+<!-- SFX Alerte -->
+<audio id="alertSfx" src="assets/audio/alert_marked.mp3" preload="auto"></audio>
+
+<!-- Overlay "MARQUÉ / REPÉRÉ" -->
+<div id="markOverlay" class="mark-overlay" hidden>
+  <div class="mark-box">
+    <div class="mark-title">ALERTE</div>
+    <div class="mark-main">MARQUÉ / REPÉRÉ</div>
+    <div class="mark-sub">TRACE SIGNALÉE • LAX_NODE • SESSION COMPROMISE</div>
+  </div>
+</div>
+
+<!-- Écran noir -->
+<div id="blackout" class="blackout" hidden></div>
+
+<!-- Trailer (video full screen) -->
+<video
+  id="trailer"
+  class="trailer"
+  hidden
+  playsinline
+  preload="auto"
+  controls
+>
+  <source src="trailerbladerunner3.mp4" type="video/mp4" />
+</video>
+
+<!-- === FINALE WARNING === -->
+<div id="finalWarn" class="final-warn" hidden>
+  <div class="final-warn-box">
+    <div class="final-warn-title">⚠ REPÉRÉ ⚠</div>
+    <div class="final-warn-body">
+      Signal hostile détecté. L’accès au nœud est compromis.
+    </div>
+    <button id="finalWarnBtn" class="btn">Lancer la séquence</button>
+  </div>
+</div>
+
+<!-- son d’alerte -->
+<audio id="warnSfx" src="Mountain Audio - Warning Alarm.mp3" preload="auto"></audio>
+
+<!-- trailer -->
+<div id="finalBlack" class="final-black" hidden></div>
+<video id="trailerVid" class="final-trailer" hidden playsinline>
+  <source src="assets/video/trailer.mp4" type="video/mp4" />
+</video>
+
+
+</body>
+</html>
